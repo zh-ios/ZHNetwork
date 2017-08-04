@@ -16,7 +16,6 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.requestType = ZHRequestType_GET;
         self.timeoutSeconds = 30;
     }
     return self;
@@ -38,5 +37,19 @@
     return self.requestTask.currentRequest;
 }
 
+
+#pragma mark -- 子类重写
+- (id)params {
+    return nil;
+}
+- (ZHRequestType)requestType {
+    return ZHRequestType_GET;
+}
+- (ZHRequestSerializerType)requestSerializer {
+    return ZHRequestSerializerType_JSON;
+}
+- (ZHResponseSerializerType)responseSerializer {
+    return ZHResponseSerializerType_JSON;
+}
 
 @end

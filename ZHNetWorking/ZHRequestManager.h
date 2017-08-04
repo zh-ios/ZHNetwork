@@ -16,9 +16,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
-+ (void)addRequest:(ZHBaseRequest *)request;
-+ (void)cancelRequest:(ZHBaseRequest *)request;
-+ (void)cancelAllRequests;
+- (void)addRequest:(ZHBaseRequest *)request;
+- (void)cancelRequest:(ZHBaseRequest *)request;
+- (void)cancelAllRequests;
 
 + (instancetype)sharedManager;
 
