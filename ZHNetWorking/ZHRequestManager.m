@@ -10,13 +10,28 @@
 #import "AFNetworking.h"
 #import "ZHBaseRequest.h"
 #import "AFHttpSessionManager.h"
+#import <pthread/pthread.h>
+
 @interface ZHRequestManager ()
 
 @property(nonatomic, strong) NSMutableDictionary<NSNumber *, ZHBaseRequest *> *requestRecord;
 @property(nonatomic, strong) AFHTTPSessionManager *sessionMgr;
+
+@property(nonatomic, strong) AFJSONResponseSerializer  *jsonResponseSerializer;
 @end
 
 @implementation ZHRequestManager
+{
+    pthread_mutex_t _lock;
+}
+
+#pragma mark --getter & setter
+- (AFJSONResponseSerializer *)jsonResponseSerializer {
+    if (!_jsonResponseSerializer) {
+        _jsonResponseSerializer = [AFJSONResponseSerializer serializer];
+    }
+    return _jsonResponseSerializer;
+}
 
 + (instancetype)sharedManager {
     static ZHRequestManager *mgr = nil;
@@ -32,6 +47,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.requestRecord = [NSMutableDictionary dictionary];
+        pthread_mutex_init(&_lock, NULL);
     }
     return self;
 }
@@ -49,10 +65,14 @@
     ZHRequestType requestType = request.requestType;
     id params = [request params];
     AFConstructingBlock block = request.constructingBodyBlock;
-    
+    AFHTTPRequestSerializer *requestSerializer = [self requestSerializer4Request:(ZHBaseRequest *)request];
     switch (request.requestType) {
         case ZHRequestType_GET:
-            
+            if (request.downloadPath) {
+                // 下载文件
+            } else {
+                
+            }
             break;
         case ZHRequestType_POST:
             break;
@@ -90,16 +110,100 @@
     return task;
 }
 
-- (void)handleRequestResult:(NSURLSessionTask *)task responseObj:(id)response error:(NSError * _Nullable __autoreleasing)error {
+
+- (AFHTTPRequestSerializer *)requestSerializer4Request:(ZHBaseRequest *)request {
+    AFHTTPRequestSerializer *serializer = nil;
+    if ([request requestSerializer] == ZHRequestSerializerType_JSON) {
+        serializer = [AFJSONRequestSerializer serializer];
+    }
+    serializer.timeoutInterval = request.timeoutSeconds;
     
+    NSDictionary<NSString *, NSString *> *customHeaders = request.requstHeaders;
+    if (customHeaders) {
+        for (NSString *key in customHeaders.allKeys) {
+            NSString *value = customHeaders[key];
+            [serializer setValue:value forHTTPHeaderField:key];
+        }
+    }
+    return serializer;
+}
+
+
+- (void)handleRequestResult:(NSURLSessionTask *)task responseObj:(id)response error:(NSError * _Nullable __autoreleasing)error {
+    pthread_mutex_lock(&_lock);
+    ZHBaseRequest *request = self.requestRecord[@(task.taskIdentifier)];
+    pthread_mutex_unlock(&_lock);
+    if (!request) return;
+    request.responseData = response;
+    NSError *serializationError = nil;
+    NSError *validationError = nil;
+    NSError *requestError = nil;
+    BOOL success = NO;
+    switch (request.requestSerializer) {
+        case ZHRequestSerializerType_JSON:
+            request.responseObj =  [self.jsonResponseSerializer responseObjectForResponse:task.response data:request.responseData error:&serializationError];
+            break;
+            
+        default:
+            break;
+    }
+    
+    if (error) {
+        success = NO;
+        requestError = error;
+    } else if (serializationError) {
+        success = NO;
+        requestError = error;
+    } else {
+        // 验证json 合法性
+//        success = [request validateJson: error:];
+        requestError = validationError;
+    }
+    
+    if (success) {
+        // 成功回调
+    } else {
+        // 失败回调
+    }
+    
+    
+    
+}
+
+- (void)removeRequestFromRecord:(ZHBaseRequest *)request {
+    pthread_mutex_lock(&_lock);
+    [self.requestRecord removeObjectForKey:@(request.requestTask.taskIdentifier)];
+    pthread_mutex_unlock(&_lock);
+    
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self removeRequestFromRecord:request];
+        [self clearCompletionBlock];
+    });
+    
+    
+}
+
+- (void)clearCompletionBlock {
+    // 设置回调blcok 为nil
 }
 
 - (void)cancelAllRequests {
-    
+    pthread_mutex_lock(&_lock);
+    NSArray *allKeys = [self.requestRecord allKeys];
+    pthread_mutex_unlock(&_lock);
+    for (NSNumber *key in allKeys) {
+        pthread_mutex_lock(&_lock);
+        ZHBaseRequest *request = self.requestRecord[key];
+        pthread_mutex_unlock(&_lock);
+        [request stop];
+    }
 }
 
 - (void)cancelRequest:(ZHBaseRequest *)request {
-    
+    [request.requestTask cancel];
+    [self removeRequestFromRecord:request];
+    [self clearCompletionBlock];
 }
 
 @end

@@ -42,9 +42,9 @@ typedef NS_ENUM(NSInteger, ZHResponseSerializerType) {
  @property
  @abstract 返回的字符串
  */
-@property(nonatomic, copy, readonly) NSString *responseString;
-
-@property(nonatomic, strong, readonly) NSHTTPURLResponse *httpResponse;
+@property(nonatomic, copy) NSString *responseString;
+@property(nonatomic, strong) NSDictionary *responseObj;
+@property(nonatomic, strong) NSHTTPURLResponse *httpResponse;
 /*!
  @property
  @abstract 文件下载的路径，在请求开始之前会将这个路径下的文件移除，如果请求成功文件将会自动保存包改路径下，否则会保存到 responseData 和 responseString
