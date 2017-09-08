@@ -13,9 +13,6 @@
 		86458D571F31D487006F7FF3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 86458D551F31D487006F7FF3 /* Main.storyboard */; };
 		86458D591F31D487006F7FF3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 86458D581F31D487006F7FF3 /* Assets.xcassets */; };
 		86458D5C1F31D487006F7FF3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 86458D5A1F31D487006F7FF3 /* LaunchScreen.storyboard */; };
-		869E663E1F31EBA100A6BC78 /* ZHBaseRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 869E663D1F31EBA100A6BC78 /* ZHBaseRequest.m */; };
-		869E66491F33243F00A6BC78 /* ZHRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 869E66481F33243F00A6BC78 /* ZHRequestManager.m */; };
-		869E664C1F33260100A6BC78 /* ZHNetworkConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 869E664B1F33260100A6BC78 /* ZHNetworkConfig.m */; };
 		AD4D85DEC8965522AD26CCA6 /* libPods-ZHNetWorking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9380F8EE815297784EA124FB /* libPods-ZHNetWorking.a */; };
 /* End PBXBuildFile section */
 
@@ -30,12 +27,6 @@
 		86458D581F31D487006F7FF3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		86458D5B1F31D487006F7FF3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		86458D5D1F31D487006F7FF3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		869E663C1F31EBA100A6BC78 /* ZHBaseRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZHBaseRequest.h; sourceTree = "<group>"; };
-		869E663D1F31EBA100A6BC78 /* ZHBaseRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZHBaseRequest.m; sourceTree = "<group>"; };
-		869E66471F33243F00A6BC78 /* ZHRequestManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZHRequestManager.h; sourceTree = "<group>"; };
-		869E66481F33243F00A6BC78 /* ZHRequestManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZHRequestManager.m; sourceTree = "<group>"; };
-		869E664A1F33260100A6BC78 /* ZHNetworkConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZHNetworkConfig.h; sourceTree = "<group>"; };
-		869E664B1F33260100A6BC78 /* ZHNetworkConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZHNetworkConfig.m; sourceTree = "<group>"; };
 		9380F8EE815297784EA124FB /* libPods-ZHNetWorking.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZHNetWorking.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A956FAE5D41D472CECCB892B /* Pods-ZHNetWorking.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZHNetWorking.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ZHNetWorking/Pods-ZHNetWorking.debug.xcconfig"; sourceTree = "<group>"; };
 		E56DDE47A214ABD51D5977EE /* Pods-ZHNetWorking.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZHNetWorking.release.xcconfig"; path = "Pods/Target Support Files/Pods-ZHNetWorking/Pods-ZHNetWorking.release.xcconfig"; sourceTree = "<group>"; };
@@ -83,12 +74,6 @@
 				86458D5A1F31D487006F7FF3 /* LaunchScreen.storyboard */,
 				86458D5D1F31D487006F7FF3 /* Info.plist */,
 				86458D4C1F31D487006F7FF3 /* Supporting Files */,
-				869E663C1F31EBA100A6BC78 /* ZHBaseRequest.h */,
-				869E663D1F31EBA100A6BC78 /* ZHBaseRequest.m */,
-				869E66471F33243F00A6BC78 /* ZHRequestManager.h */,
-				869E66481F33243F00A6BC78 /* ZHRequestManager.m */,
-				869E664A1F33260100A6BC78 /* ZHNetworkConfig.h */,
-				869E664B1F33260100A6BC78 /* ZHNetworkConfig.m */,
 			);
 			path = ZHNetWorking;
 			sourceTree = "<group>";
@@ -152,7 +137,6 @@
 				TargetAttributes = {
 					86458D481F31D487006F7FF3 = {
 						CreatedOnToolsVersion = 8.3.3;
-						DevelopmentTeam = W35GD34VEQ;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -241,12 +225,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				869E664C1F33260100A6BC78 /* ZHNetworkConfig.m in Sources */,
 				86458D541F31D487006F7FF3 /* ViewController.m in Sources */,
 				86458D511F31D487006F7FF3 /* AppDelegate.m in Sources */,
 				86458D4E1F31D487006F7FF3 /* main.m in Sources */,
-				869E663E1F31EBA100A6BC78 /* ZHBaseRequest.m in Sources */,
-				869E66491F33243F00A6BC78 /* ZHRequestManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -367,11 +348,14 @@
 			baseConfigurationReference = A956FAE5D41D472CECCB892B /* Pods-ZHNetWorking.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = W35GD34VEQ;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = ZHNetWorking/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.autohome.--PluginName--Framework.ZHNetWorking";
+				PRODUCT_BUNDLE_IDENTIFIER = "ZHNeworking-ttt";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
@@ -380,11 +364,14 @@
 			baseConfigurationReference = E56DDE47A214ABD51D5977EE /* Pods-ZHNetWorking.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = W35GD34VEQ;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = ZHNetWorking/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.autohome.--PluginName--Framework.ZHNetWorking";
+				PRODUCT_BUNDLE_IDENTIFIER = "ZHNeworking-ttt";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};
