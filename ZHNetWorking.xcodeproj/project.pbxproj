@@ -13,6 +13,9 @@
 		86458D571F31D487006F7FF3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 86458D551F31D487006F7FF3 /* Main.storyboard */; };
 		86458D591F31D487006F7FF3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 86458D581F31D487006F7FF3 /* Assets.xcassets */; };
 		86458D5C1F31D487006F7FF3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 86458D5A1F31D487006F7FF3 /* LaunchScreen.storyboard */; };
+		86566E051F6683AF00C2D52B /* ZHBaseRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 86566E041F6683AF00C2D52B /* ZHBaseRequest.m */; };
+		86566E081F67C89800C2D52B /* ZHRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 86566E071F67C89800C2D52B /* ZHRequest.m */; };
+		86566E0B1F67D34A00C2D52B /* ZHRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 86566E0A1F67D34A00C2D52B /* ZHRequestManager.m */; };
 		AD4D85DEC8965522AD26CCA6 /* libPods-ZHNetWorking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9380F8EE815297784EA124FB /* libPods-ZHNetWorking.a */; };
 /* End PBXBuildFile section */
 
@@ -27,6 +30,12 @@
 		86458D581F31D487006F7FF3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		86458D5B1F31D487006F7FF3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		86458D5D1F31D487006F7FF3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		86566E031F6683AF00C2D52B /* ZHBaseRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZHBaseRequest.h; sourceTree = "<group>"; };
+		86566E041F6683AF00C2D52B /* ZHBaseRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZHBaseRequest.m; sourceTree = "<group>"; };
+		86566E061F67C89800C2D52B /* ZHRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZHRequest.h; sourceTree = "<group>"; };
+		86566E071F67C89800C2D52B /* ZHRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZHRequest.m; sourceTree = "<group>"; };
+		86566E091F67D34A00C2D52B /* ZHRequestManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZHRequestManager.h; sourceTree = "<group>"; };
+		86566E0A1F67D34A00C2D52B /* ZHRequestManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZHRequestManager.m; sourceTree = "<group>"; };
 		9380F8EE815297784EA124FB /* libPods-ZHNetWorking.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZHNetWorking.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A956FAE5D41D472CECCB892B /* Pods-ZHNetWorking.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZHNetWorking.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ZHNetWorking/Pods-ZHNetWorking.debug.xcconfig"; sourceTree = "<group>"; };
 		E56DDE47A214ABD51D5977EE /* Pods-ZHNetWorking.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZHNetWorking.release.xcconfig"; path = "Pods/Target Support Files/Pods-ZHNetWorking/Pods-ZHNetWorking.release.xcconfig"; sourceTree = "<group>"; };
@@ -69,6 +78,12 @@
 				86458D501F31D487006F7FF3 /* AppDelegate.m */,
 				86458D521F31D487006F7FF3 /* ViewController.h */,
 				86458D531F31D487006F7FF3 /* ViewController.m */,
+				86566E031F6683AF00C2D52B /* ZHBaseRequest.h */,
+				86566E041F6683AF00C2D52B /* ZHBaseRequest.m */,
+				86566E061F67C89800C2D52B /* ZHRequest.h */,
+				86566E071F67C89800C2D52B /* ZHRequest.m */,
+				86566E091F67D34A00C2D52B /* ZHRequestManager.h */,
+				86566E0A1F67D34A00C2D52B /* ZHRequestManager.m */,
 				86458D551F31D487006F7FF3 /* Main.storyboard */,
 				86458D581F31D487006F7FF3 /* Assets.xcassets */,
 				86458D5A1F31D487006F7FF3 /* LaunchScreen.storyboard */,
@@ -137,6 +152,7 @@
 				TargetAttributes = {
 					86458D481F31D487006F7FF3 = {
 						CreatedOnToolsVersion = 8.3.3;
+						DevelopmentTeam = W35GD34VEQ;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -225,9 +241,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				86566E051F6683AF00C2D52B /* ZHBaseRequest.m in Sources */,
+				86566E081F67C89800C2D52B /* ZHRequest.m in Sources */,
 				86458D541F31D487006F7FF3 /* ViewController.m in Sources */,
 				86458D511F31D487006F7FF3 /* AppDelegate.m in Sources */,
 				86458D4E1F31D487006F7FF3 /* main.m in Sources */,
+				86566E0B1F67D34A00C2D52B /* ZHRequestManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -350,8 +369,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = W35GD34VEQ;
 				INFOPLIST_FILE = ZHNetWorking/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "ZHNeworking-ttt";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -366,8 +386,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = W35GD34VEQ;
 				INFOPLIST_FILE = ZHNetWorking/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "ZHNeworking-ttt";
 				PRODUCT_NAME = "$(TARGET_NAME)";

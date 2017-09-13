@@ -7,6 +7,8 @@
 //
 
 #import "ViewController.h"
+#import "ZHRequest.h"
+#import "ZHRequestManager.h"
 @interface ViewController ()
 
 @end
@@ -16,6 +18,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    ZHRequest *req = [[ZHRequest alloc] init];
+    req.timeoutInterval = 20;
+    req.requestType = ZHRequest_Type_GET;
+    req.requestSerializerType = ZHRequest_RequestSerializerType_JSON;
+    req.urlString = @"https://activity.app.autohome.com.cn/ugapi/api/guide/getNoticeRule";
+    
+    [[ZHRequestManager sharedManager] addRequest:req];
     
 }
 
