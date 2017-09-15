@@ -17,8 +17,13 @@
 @interface ZHRequestManager ()
 
 @property(nonatomic, strong) AFHTTPRequestSerializer *requestSerializer;
-@property(nonatomic, strong) AFJSONResponseSerializer *responseSerializer;
+
+@property(nonatomic, strong) AFJSONResponseSerializer *jsonResponseSerializer;
+@property(nonatomic, strong) AFHTTPResponseSerializer *httpResponseSerializer;
+@property(nonatomic, strong) AFXMLParserResponseSerializer *xmlResponseSerializer;
+
 @property(nonatomic, strong) AFHTTPSessionManager *manager;
+@property(nonatomic, strong) NSIndexSet *statusCodeRange;
 @end
 
 @implementation ZHRequestManager
@@ -46,13 +51,28 @@
     }
     return _requestSerializer;
 }
-- (AFJSONResponseSerializer *)responseSerializer {
-    if (!_responseSerializer) {
-        _responseSerializer = [AFJSONResponseSerializer serializer];
-//        _responseSerializer.acceptableStatusCodes = 
+- (AFJSONResponseSerializer *)jsonResponseSerializer {
+    if (!_jsonResponseSerializer) {
+        _jsonResponseSerializer = [AFJSONResponseSerializer serializer];
+        _jsonResponseSerializer.acceptableStatusCodes = self.statusCodeRange;
     }
-    return _responseSerializer;
+    return _jsonResponseSerializer;
 }
+- (AFHTTPResponseSerializer *)httpResponseSerializer {
+    if (!_httpResponseSerializer) {
+        _httpResponseSerializer = [AFHTTPResponseSerializer serializer];
+        _httpResponseSerializer.acceptableStatusCodes = self.statusCodeRange;
+    }
+    return _httpResponseSerializer;
+}
+- (AFXMLParserResponseSerializer *)xmlResponseSerializer {
+    if (!_xmlResponseSerializer) {
+        _xmlResponseSerializer = [AFXMLParserResponseSerializer serializer];
+        _xmlResponseSerializer.acceptableStatusCodes = self.statusCodeRange;
+    }
+    return _xmlResponseSerializer;
+}
+
 - (AFHTTPSessionManager *)manager {
     if (!_manager) {
         _manager = [AFHTTPSessionManager manager];
@@ -60,10 +80,19 @@
     return _manager;
 }
 
+
+
 - (instancetype)init {
     if (self = [super init]) {
         pthread_mutex_init(&_lock, NULL);
         _recordRequests = [NSMutableDictionary dictionary];
+        
+        
+        // 返回的结果是二进制类型
+        self.manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        self.statusCodeRange = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(100, 500)];
+        // take over response status range
+        self.manager.responseSerializer.acceptableStatusCodes = self.statusCodeRange;
     }
     return self;
 }
@@ -71,12 +100,39 @@
 - (void)addRequest:(ZHRequest *)request {
     if (!request) return;
 
-    NSURLSessionTask *dataTask = nil;
-    dataTask = [self sessionTask4Request:request];
-    [dataTask resume];
+    // 判断是否是同一个request ，如果是同一个requst 先取消之前的请求。
+    Lock;
+    ZHRequest *oldRequest = [_recordRequests objectForKey:request.uniqueIdentifier];
+    UnLock;
+    if (oldRequest) {
+        [oldRequest cancel];
+    }
+    NSURLSessionTask *sessionTask = nil;
+    sessionTask = [self sessionTask4Request:request];
+    request.sessionTask = sessionTask;
+    
+    // 设置sesssion的优先级
+    if ([request.sessionTask respondsToSelector:@selector(priority)]) {
+        switch (request.priority) {
+            case ZHRequest_Priority_Low:
+                request.sessionTask.priority = NSURLSessionTaskPriorityLow;
+                break;
+            case ZHRequest_Priority_Default:
+                request.sessionTask.priority = NSURLSessionTaskPriorityDefault;
+                break;
+            case ZHRequest_Priority_High:
+                request.sessionTask.priority = NSURLSessionTaskPriorityHigh;
+                break;
+                
+            default:
+                break;
+        }
+    }
+    
+    [sessionTask resume];
     
     Lock;
-    [_recordRequests setObject:request forKey:@(request.dataTask.taskIdentifier)];
+    [_recordRequests setObject:request forKey:request.uniqueIdentifier];
     UnLock;
     
 }
@@ -87,29 +143,24 @@
     NSDictionary  *params = request.params;
     NSURLSessionTask *task = nil;
     NSError *error = nil;
-    switch (request.requestType) {
-        case ZHRequest_Type_GET:
-            return [self dataTaskWithHttpMethod:@"GET" requestSerializer:requestSerializer urlStr:urlStr  params:params constructingBlock:request.formData error:error];
-            break;
-        case ZHRequest_Type_POST:
-            return [self dataTaskWithHttpMethod:@"POST" requestSerializer:requestSerializer urlStr:urlStr params:params constructingBlock:request.formData error:error];
-            break;
-        default:
-            break;
-    }
+    task = [self dataTask4Request:request requestSerializer:requestSerializer urlStr:urlStr params:params constructingBlock:request.formData error:error];
+   
     return task;
 }
 
 - (AFHTTPRequestSerializer *)requestSerializer4Request:(ZHRequest *)request {
     AFHTTPRequestSerializer *serializer = nil;
     switch (request.requestSerializerType) {
+            // default 
         case ZHRequest_RequestSerializerType_HTTP:
-            // TODO
+            serializer = [AFHTTPRequestSerializer serializer];
             break;
         case ZHRequest_RequestSerializerType_JSON:
             serializer = [AFJSONRequestSerializer serializer];
             break;
-            
+        case ZHRequest_RequestSerializerType_Plist:
+            serializer = [AFPropertyListRequestSerializer serializer];
+            break;
         default:
             break;
     }
@@ -126,24 +177,67 @@
     
 }
 
-- (NSURLSessionDataTask *)dataTaskWithHttpMethod:(NSString *)method requestSerializer:(AFHTTPRequestSerializer *)serializer
+- (NSURLSessionDataTask *)dataTask4Request:(ZHRequest *)request requestSerializer:(AFHTTPRequestSerializer *)serializer
                                           urlStr:(NSString *)url
                                           params:(id)params
                                constructingBlock:(ConstructingFormDataBlock)formdata
                                            error:(NSError *)error {
     
-    NSMutableURLRequest *request =  nil;
-    if (formdata) {
-        request = [serializer multipartFormRequestWithMethod:method URLString:url parameters:params constructingBodyWithBlock:formdata error:&error];
-    } else {
-        request = [serializer requestWithMethod:method URLString:url parameters:params error:&error];
+    NSMutableURLRequest *urlRequest =  nil;
+    NSString *method = @"GET";
+    switch (request.requestType) {
+        case ZHRequest_Type_GET:
+            method = @"GET";
+            break;
+        case ZHRequest_Type_POST:
+            method = @"POST";
+            break;
+        default:
+            break;
     }
     
-    NSURLSessionDataTask *dataTask = nil;
-    dataTask = [self.manager dataTaskWithRequest:request completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+    if (formdata) {
+        urlRequest = [serializer multipartFormRequestWithMethod:method URLString:url parameters:params constructingBodyWithBlock:formdata error:&error];
+    } else {
+        urlRequest = [serializer requestWithMethod:method URLString:url parameters:params error:&error];
+    }
+
+    NSURLSessionDataTask *dataTask = [self.manager dataTaskWithRequest:urlRequest completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
         // 处理返回的结果
+        [self handleResult:request urlResponse:response responseObj:responseObject error:error];
     }];
+    
     return dataTask;
+}
+
+
+- (void)handleResult:(ZHRequest *)request urlResponse:(NSURLResponse *)response responseObj:(id)responseObj error:(NSError *)error {
+
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+    request.statusCode = httpResponse.statusCode;
+    request.allHeaderFields = httpResponse.allHeaderFields;
+ 
+    request.responseObj = responseObj;
+    if ([responseObj isKindOfClass:[NSData class]]) {
+        request.responseObj = responseObj;
+        NSError *serializerError = nil;
+        switch (request.responseSerilalizerType) {
+            case ZHRequest_ResponseSerilalizerType_JSON:
+                request.responseObj = [self.jsonResponseSerializer responseObjectForResponse:response data:responseObj error:&serializerError];
+                request.responseString = [[NSString alloc] initWithData:responseObj encoding:NSUTF8StringEncoding];
+                break;
+            case ZHRequest_ResponseSerilalizerType_HTTP:
+                //
+                request.responseObj = [self.httpResponseSerializer responseObjectForResponse:response data:responseObj error:&serializerError ];
+                request.responseString = [[NSString alloc] initWithData:responseObj encoding:NSUTF8StringEncoding];
+                break;
+            case ZHRequest_ResponseSerilalizerType_XML:
+                //
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 
@@ -154,16 +248,29 @@
 
 
 
+- (void)cancelRequest:(ZHRequest *)request {
+    if (!request) return;
+    NSURLSessionTask *sessionTask = request.sessionTask;
+    [sessionTask cancel];
+    Lock;
+    [_recordRequests removeObjectForKey:request.uniqueIdentifier];
+    UnLock;
+}
 
-
-- (void)sendRequest:(ZHRequest_Type)type url:(NSString *)url
-             params:(NSDictionary *)params
-     requestHeaders:(NSDictionary *)headers
-           formData:(ConstructingFormDataBlock)formData
-            process:(ProcessBlock)process
-            success:(SuccessBlock)success
-            failure:(FailureBlock)failure {
-    
+- (void)cancelAllRequest {
+    Lock;
+    NSArray *keys = _recordRequests.allKeys;
+    UnLock;
+    if (keys && keys.count > 0) {
+        NSArray *keysCopy = [keys copy];
+        for (NSString *key in keysCopy) {
+            Lock;
+            ZHRequest *request = _recordRequests[key];
+            UnLock;
+            [request cancel];
+            request = nil;
+        }
+    }
 }
 
 @end
