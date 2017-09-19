@@ -259,7 +259,7 @@
     
     NSURL *resumeDataUrl = [self incompleteDownloadTempPathForDownloadPath:path];
     NSData *resumeData = [NSData dataWithContentsOfURL:resumeDataUrl];
-    
+ 
     BOOL isValid = [self validateResumeData:resumeData];
     
     
@@ -326,25 +326,44 @@
     }
     
     if (isSuccess) {
-        /// 请求成功回调
-        if ([request.delegate respondsToSelector:@selector(requestFinished:responseObj:)]) {
-            [request.delegate requestFinished:request responseObj:request.responseObj];
-        }
-        if ([request.delegate respondsToSelector:@selector(requestFinished:responseStr:)]) {
-            [request.delegate requestFinished:request responseStr:request.responseString];
-        }
+        [self requestDidSuccessWithRequest:request];
     } else {
-        if ([request.delegate respondsToSelector:@selector(requestFailed:)]) {
-            [request.delegate requestFailed:error];
-        }
+        [self requestDidFailedWithRequest:request responseObj:responseObj error:error];
     }
 }
 
-- (void)requestDidSuccessWithRequest:(ZHRequest *)request responseObj:(id)responseObj{
-    
+- (void)requestDidSuccessWithRequest:(ZHRequest *)request {
+    /// 请求成功回调
+    if ([request.delegate respondsToSelector:@selector(requestFinished:responseObj:)]) {
+        [request.delegate requestFinished:request responseObj:request.responseObj];
+    }
+    if ([request.delegate respondsToSelector:@selector(requestFinished:responseStr:)]) {
+        [request.delegate requestFinished:request responseStr:request.responseString];
+    }
 }
-- (void)requestDidFailedWithRequest:(ZHRequest *)request error:(NSError *)error {
+- (void)requestDidFailedWithRequest:(ZHRequest *)request responseObj:(id)responseObj error:(NSError *)error {
     
+    NSData *incompleteData = error.userInfo[NSURLSessionDownloadTaskResumeData];
+    if ([incompleteData length] > 0 && [self validateResumeData:incompleteData]) {
+        // save resumeData'
+        NSError *error = nil;
+        BOOL ret =  [incompleteData writeToURL:[self incompleteDownloadTempPathForDownloadPath:request.downloadPath] options:NSDataWritingAtomic  error:&error];
+        NSLog(@"--%@",error.userInfo);
+    }
+    
+    if ([responseObj isKindOfClass:[NSURL class]]) {
+        NSURL *fileUrl = (NSURL *)responseObj;
+        if (fileUrl.isFileURL && [[NSFileManager defaultManager] fileExistsAtPath:[fileUrl path]]) {
+            request.responseData = [NSData dataWithContentsOfURL:fileUrl];
+            request.responseString = [[NSString alloc] initWithData:request.responseData encoding:NSUTF8StringEncoding];
+            [[NSFileManager defaultManager] removeItemAtURL:fileUrl error:nil];
+        }
+        request.responseObj = nil;
+    }
+    
+    if ([request.delegate respondsToSelector:@selector(requestFailed:)]) {
+        [request.delegate requestFailed:error];
+    }
 }
 
 
@@ -377,7 +396,14 @@
 #pragma mark - Resumable Download
 
 - (NSURL *)incompleteDownloadTempPathForDownloadPath:(NSString *)downloadPath {
-    NSString *tempPath = [[self incompleteDownloadTempCacheFolder] stringByAppendingPathComponent:downloadPath];
+    // TODO MD5 String downloadPath 取MD5值，当做存临近数据的url路径
+    
+//    [downloadPath md5]
+    
+    NSString *tempPath = [[self incompleteDownloadTempCacheFolder] stringByAppendingPathComponent:@"aaassswedafsdfa"];
+    
+    
+    
     return [NSURL fileURLWithPath:tempPath];
 }
 

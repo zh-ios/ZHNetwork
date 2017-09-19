@@ -19,8 +19,4 @@
 - (void)requestFinished:(ZHRequest *)request responseStr:(NSString *)responseStr;
 - (void)requestFailed:(NSError *)error;
 
-#pragma mark ---download request 
-- (void)requestOfDownloadFinished:(ZHRequest *)request filepath:(NSURL *)filepath;
-- (void)requestOfDownloadFailed:(ZHRequest *)request filepath:(NSURL *)filepath error:(NSError *)error;
-
 @end

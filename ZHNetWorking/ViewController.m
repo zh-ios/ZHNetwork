@@ -10,6 +10,8 @@
 #import "ZHRequest.h"
 #import "ZHRequestManager.h"
 
+#import "AFNetworking.h"
+
 #define kUserToken          @"02b504cc5d6d4666be41e40f8946e1d6"
 
 @interface ViewController ()<ZHRequestDelegate>
@@ -71,6 +73,9 @@
     
     NSString *downloadStr = @"http://120.25.226.186:32812/resources/videos/minion_01.mp4";
     
+    
+    
+    
     ZHRequest *postRe = [[ZHRequest alloc] init];
     postRe.urlString = downloadStr;
     postRe.delegate = self;
@@ -94,6 +99,23 @@
     textView.text = @"sdfasdfasdfasdfasd234123412341234123412341234123423sdfkajskdfaskdfjhaskdfasdkjfas;ldkfjasl;djfkalsdjfa;klsdjflasdjflasjdfl;kasdjfklasdjfasdhgkjlad;slfjasdlfkjaslkdfj";
     [self.view addSubview:textView];
     
+    
+    
+    AFHTTPSessionManager *mgr = [AFHTTPSessionManager manager ];
+    
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:downloadStr]];
+    
+    
+    
+    NSURLSessionDownloadTask *task = [mgr downloadTaskWithRequest:request progress:^(NSProgress * _Nonnull downloadProgress) {
+        NSLog(@"-------------------->>>");
+    } destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
+        return [NSURL URLWithString:@"11"];
+    } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
+        NSLog(@"----");
+    }];
+    
+//    [task resume];
 }
 
 
