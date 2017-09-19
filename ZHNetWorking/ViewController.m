@@ -9,7 +9,10 @@
 #import "ViewController.h"
 #import "ZHRequest.h"
 #import "ZHRequestManager.h"
-@interface ViewController ()
+
+#define kUserToken          @"02b504cc5d6d4666be41e40f8946e1d6"
+
+@interface ViewController ()<ZHRequestDelegate>
 
 @end
 
@@ -19,7 +22,7 @@
     [super viewDidLoad];
     
     
-    
+// get 请求
 //    NSDictionary * dic = @{
 //                 @"app" : @1,
 //                 @"deviceid" : @"18896d567674dbd24457a8ecb483cd5c5695667d",
@@ -34,31 +37,57 @@
 //    
 //    NSString *urlStr = [NSString stringWithFormat:@"%@mobile/newstartup.ashx",[NSString stringWithFormat:@"https://mobilenc.app.autohome.com.cn/mobile_v%@/",@"7.6.0"]];
 
+//    for (int i= 1; i<2; i++) {
+//        ZHRequest *req = [[ZHRequest alloc] init];
+//        req.timeoutInterval = 20;
+//        req.requestType = ZHRequest_Type_POST;
+//        req.urlString = @"https://activity.app.autohome.com.cn/ugapi/api/guide/getNoticeRule";
+//        req.priority = ZHRequest_Priority_Low;
+//        if (i % 5 ==0) {
+//            req.priority = ZHRequest_Priority_High;
+//        }
+//    req.delegate = self;
+//        [req start];
+//    }
     
+    
+    UIImage *imgData = [UIImage imageNamed:@"user_growth_gift"];
+    
+    NSMutableDictionary * dic =[NSMutableDictionary dictionaryWithCapacity:7];
+    [dic setValue:kUserToken forKey:@"userId"];
+    [dic setValue:UIImagePNGRepresentation(imgData) forKey:@"file"];
+    
+    [dic setValue:@"lisi" forKey:@"nickname"];
+    
+    
+    NSString *urlStr =  @"http://ebook.huakeyihui.com:8080/pod/mobile/user/uploadHead";
+    
+    
+    
+    // post 请求登录
 //    NSDictionary *dic = @{@"acount" : @"18809876543", @"password" : @"123456"};
 //    NSString *urlStr = @"http://ebook.huakeyihui.com:8080/pod/mobile/user/login";
-//    
-//    ZHRequest *postRe = [[ZHRequest alloc] init];
-//    postRe.urlString = urlStr;
-//    postRe.params = dic;
-//    postRe.requestType = ZHRequest_Type_POST;
-//    [postRe start];
 
-    for (int i= 1; i<2; i++) {
-        ZHRequest *req = [[ZHRequest alloc] init];
-        req.timeoutInterval = 20;
-        req.requestType = ZHRequest_Type_GET;
-        req.urlString = @"https://activity.app.autohome.com.cn/ugapi/api/guide/getNoticeRule";
-        req.priority = ZHRequest_Priority_Low;
-        if (i % 5 ==0) {
-            req.priority = ZHRequest_Priority_High;
-        }
-        
-        
-        [req start];
-        
-        [req start];
-    }
+    
+    NSString *downloadStr = @"http://120.25.226.186:32812/resources/videos/minion_01.mp4";
+    
+    ZHRequest *postRe = [[ZHRequest alloc] init];
+    postRe.urlString = downloadStr;
+    postRe.delegate = self;
+//    postRe.params = dic;
+    
+    
+    NSString *documentPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    
+    postRe.downloadProcess = ^(NSProgress *process) {
+        NSLog(@"--------->%.2f",process.completedUnitCount/(process.totalUnitCount*1.0));
+    };
+    postRe.downloadPath = documentPath;
+    postRe.requestType = ZHRequest_Type_GET;
+    [postRe start];
+    
+    
+//    http://120.25.226.186:32812/resources/videos/minion_01.mp4
     
     
     UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(100, 100, 100, 100)];
@@ -68,9 +97,15 @@
 }
 
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)requestFailed:(NSError *)error {
+    
+}
+
+- (void)requestFinished:(ZHRequest *)request responseStr:(NSString *)responseStr {
+    
+}
+- (void)requestWillStart {
+    
 }
 
 

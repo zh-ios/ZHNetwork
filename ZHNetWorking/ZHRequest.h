@@ -7,7 +7,7 @@
 //
 
 #import "AFNetworking.h"
-
+#import "ZHRequestDelegate.h"
 typedef NS_ENUM(NSInteger, ZHRequest_Type) {
     ZHRequest_Type_GET = 0,
     ZHRequest_Type_POST
@@ -22,8 +22,6 @@ typedef NS_ENUM(NSInteger, ZHRequest_RequestSerializerType) {
     ZHRequest_RequestSerializerType_Plist
     
 };
-
-
 
 typedef NS_ENUM(NSInteger, ZHRequest_Priority) {
     ZHRequest_Priority_Default = 0,
@@ -42,11 +40,11 @@ typedef NS_ENUM(NSInteger, ZHRequest_ResponseSerilalizerType) {
 };
 
 typedef void (^ConstructingFormDataBlock)(id<AFMultipartFormData> formData);
-typedef void (^ProcessBlock)(NSProgress *process);
-typedef void (SuccessBlock) (id responseObj);
-typedef void (FailureBlock) (NSError *error);
+typedef void (^SuccessBlock) (id responseObj);
+typedef void (^FailureBlock) (NSError *error);
+typedef void (^DownloadProcessBlock)(NSProgress *process);
 
-@interface ZHRequest : NSObject
+@interface ZHRequest : NSObject <ZHRequestDelegate>
 
 @property(nonatomic, strong) NSURLSessionTask *sessionTask;
 @property(nonatomic, assign) NSInteger statusCode;
@@ -85,6 +83,20 @@ typedef void (FailureBlock) (NSError *error);
 @property(nonatomic, assign) ZHRequest_Priority priority;
 
 @property(nonatomic, assign) ZHRequest_ResponseSerilalizerType responseSerilalizerType;
+
+/*!
+ @property
+ @abstract 下载文件的路径，如果设置该属性则会使用 downloadTask ，
+ 开始下载文件之前会将该路径的文件先移除
+ */
+@property(nonatomic, copy) NSString *downloadPath;
+/*!
+ @property
+ @abstract 下载文件的进度
+ */
+@property(nonatomic, copy) DownloadProcessBlock downloadProcess;
+
+@property(nonatomic, weak) id<ZHRequestDelegate> delegate;
 
 - (void)cancel;
 

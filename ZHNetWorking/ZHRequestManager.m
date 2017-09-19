@@ -129,6 +129,11 @@
         }
     }
     
+    // 请求即将开始回调
+    if ([request.delegate respondsToSelector:@selector(requestWillStart)]) {
+        [request.delegate requestWillStart];
+    }
+    
     [sessionTask resume];
     
     Lock;
@@ -143,7 +148,24 @@
     NSDictionary  *params = request.params;
     NSURLSessionTask *task = nil;
     NSError *error = nil;
-    task = [self dataTask4Request:request requestSerializer:requestSerializer urlStr:urlStr params:params constructingBlock:request.formData error:error];
+    
+    NSString *method = @"GET";
+    switch (request.requestType) {
+        case ZHRequest_Type_GET:
+            if (request.downloadPath) {
+                return  [self downloadTaskWithRequest:request downloadPath:request.downloadPath requestSerializer:requestSerializer url:request.urlString params:params downloadProcess:request.downloadProcess];
+            } else {
+                method = @"GET";
+            }
+            break;
+        case ZHRequest_Type_POST:
+            method = @"POST";
+            break;
+        default:
+            break;
+    }
+    
+    task = [self dataTask4Request:request method:method  requestSerializer:requestSerializer urlStr:urlStr params:params constructingBlock:request.formData error:error];
    
     return task;
 }
@@ -177,25 +199,16 @@
     
 }
 
-- (NSURLSessionDataTask *)dataTask4Request:(ZHRequest *)request requestSerializer:(AFHTTPRequestSerializer *)serializer
-                                          urlStr:(NSString *)url
-                                          params:(id)params
-                               constructingBlock:(ConstructingFormDataBlock)formdata
-                                           error:(NSError *)error {
+- (NSURLSessionDataTask *)dataTask4Request:(ZHRequest *)request
+                                    method:(NSString *)method
+                         requestSerializer:(AFHTTPRequestSerializer *)serializer
+                                    urlStr:(NSString *)url
+                                    params:(id)params
+                         constructingBlock:(ConstructingFormDataBlock)formdata
+                                     error:(NSError *)error {
     
     NSMutableURLRequest *urlRequest =  nil;
-    NSString *method = @"GET";
-    switch (request.requestType) {
-        case ZHRequest_Type_GET:
-            method = @"GET";
-            break;
-        case ZHRequest_Type_POST:
-            method = @"POST";
-            break;
-        default:
-            break;
-    }
-    
+
     if (formdata) {
         urlRequest = [serializer multipartFormRequestWithMethod:method URLString:url parameters:params constructingBodyWithBlock:formdata error:&error];
     } else {
@@ -210,6 +223,61 @@
     return dataTask;
 }
 
+/*!
+ @method
+ @abstract   返回下载任务
+ @discussion request 对应的request，传递responseObj 为fileurl，
+ 传递request 是为了给request中的各个属性赋值 如果 responseStr，responseData等。
+ */
+- (NSURLSessionDownloadTask *)downloadTaskWithRequest:(ZHRequest *)request
+                   downloadPath:(NSString *)path
+              requestSerializer:(AFHTTPRequestSerializer *)requestSerializer
+                            url:(NSString *)url
+                         params:(NSDictionary *)params
+                downloadProcess:(DownloadProcessBlock)process {
+    // 添加请求参数
+    NSMutableURLRequest *urlRequest = [requestSerializer requestWithMethod:@"GET" URLString:url parameters:params error:nil];
+    
+    // 保证下载路径 是一个路径，而不是文件夹
+    BOOL isDirectory = NO;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory]) {
+        isDirectory = NO;
+    }
+    NSString *targetDownloadPath = nil;
+    if (isDirectory) {
+        NSString *fileName = [urlRequest.URL lastPathComponent];
+        targetDownloadPath = [NSString pathWithComponents:@[path, fileName]];
+    }
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:targetDownloadPath]) {
+        // AFN use `moveItemAtURL` to move downloaded file to target path,
+        // this method aborts the move attempt if a file already exist at the path.
+        // So we remove the exist file before we start the download task.
+        // https://github.com/AFNetworking/AFNetworking/issues/3775
+        [[NSFileManager defaultManager] removeItemAtPath:targetDownloadPath error:nil];
+    }
+    
+    NSURL *resumeDataUrl = [self incompleteDownloadTempPathForDownloadPath:path];
+    NSData *resumeData = [NSData dataWithContentsOfURL:resumeDataUrl];
+    
+    BOOL isValid = [self validateResumeData:resumeData];
+    
+    
+    if (resumeData && isValid) {
+        return [self.manager downloadTaskWithResumeData:resumeData progress:process destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
+            return [NSURL fileURLWithPath:targetDownloadPath isDirectory:NO];
+        } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
+            [self handleResult:request urlResponse:response responseObj:filePath error:error];
+        }];
+    } else {
+        return [self.manager downloadTaskWithRequest:urlRequest progress:process destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
+            return [NSURL fileURLWithPath:targetDownloadPath isDirectory:NO];
+        } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
+            [self handleResult:request urlResponse:response responseObj:filePath error:error];
+        }];
+    }
+    
+}
 
 - (void)handleResult:(ZHRequest *)request urlResponse:(NSURLResponse *)response responseObj:(id)responseObj error:(NSError *)error {
 
@@ -218,18 +286,19 @@
     request.allHeaderFields = httpResponse.allHeaderFields;
  
     request.responseObj = responseObj;
+    
+    NSError *serializerError = nil;
+    
     if ([responseObj isKindOfClass:[NSData class]]) {
-        request.responseObj = responseObj;
-        NSError *serializerError = nil;
+        request.responseData = responseObj;
+        
         switch (request.responseSerilalizerType) {
             case ZHRequest_ResponseSerilalizerType_JSON:
                 request.responseObj = [self.jsonResponseSerializer responseObjectForResponse:response data:responseObj error:&serializerError];
-                request.responseString = [[NSString alloc] initWithData:responseObj encoding:NSUTF8StringEncoding];
                 break;
             case ZHRequest_ResponseSerilalizerType_HTTP:
                 //
                 request.responseObj = [self.httpResponseSerializer responseObjectForResponse:response data:responseObj error:&serializerError ];
-                request.responseString = [[NSString alloc] initWithData:responseObj encoding:NSUTF8StringEncoding];
                 break;
             case ZHRequest_ResponseSerilalizerType_XML:
                 //
@@ -237,15 +306,46 @@
             default:
                 break;
         }
+        if ([responseObj isKindOfClass:[NSData class]]) {
+            request.responseString = [[NSString alloc] initWithData:responseObj encoding:NSUTF8StringEncoding];
+        } else if ([responseObj isKindOfClass:[NSURL class]]) { // 如果是下载任务
+            request.responseString = [((NSURL *)responseObj) absoluteString];
+        }
+    }
+
+    
+    // TODO 返回结果校验
+    BOOL isValidResponse = NO;
+    if (request.statusCode <= 200 && request.statusCode <= 400) {
+        isValidResponse = YES;
+    }
+    
+    BOOL isSuccess = NO;
+    if (!error && !serializerError && isValidResponse) {
+        isSuccess = YES;
+    }
+    
+    if (isSuccess) {
+        /// 请求成功回调
+        if ([request.delegate respondsToSelector:@selector(requestFinished:responseObj:)]) {
+            [request.delegate requestFinished:request responseObj:request.responseObj];
+        }
+        if ([request.delegate respondsToSelector:@selector(requestFinished:responseStr:)]) {
+            [request.delegate requestFinished:request responseStr:request.responseString];
+        }
+    } else {
+        if ([request.delegate respondsToSelector:@selector(requestFailed:)]) {
+            [request.delegate requestFailed:error];
+        }
     }
 }
 
-
-
-
-
-
-
+- (void)requestDidSuccessWithRequest:(ZHRequest *)request responseObj:(id)responseObj{
+    
+}
+- (void)requestDidFailedWithRequest:(ZHRequest *)request error:(NSError *)error {
+    
+}
 
 
 - (void)cancelRequest:(ZHRequest *)request {
@@ -271,6 +371,52 @@
             request = nil;
         }
     }
+}
+
+
+#pragma mark - Resumable Download
+
+- (NSURL *)incompleteDownloadTempPathForDownloadPath:(NSString *)downloadPath {
+    NSString *tempPath = [[self incompleteDownloadTempCacheFolder] stringByAppendingPathComponent:downloadPath];
+    return [NSURL fileURLWithPath:tempPath];
+}
+
+- (NSString *)incompleteDownloadTempCacheFolder {
+    NSFileManager *fileManager = [NSFileManager new];
+    static NSString *cacheFolder;
+    
+    if (!cacheFolder) {
+        NSString *cacheDir = NSTemporaryDirectory();
+        cacheFolder = [cacheDir stringByAppendingPathComponent:@"incomplete"];
+    }
+    
+    NSError *error = nil;
+    if(![fileManager createDirectoryAtPath:cacheFolder withIntermediateDirectories:YES attributes:nil error:&error]) {
+        NSLog(@"Failed to create cache directory at %@", cacheFolder);
+        cacheFolder = nil;
+    }
+    return cacheFolder;
+}
+
+- (BOOL)validateResumeData:(NSData *)data {
+    // From http://stackoverflow.com/a/22137510/3562486
+    if (!data || [data length] < 1) return NO;
+    
+    NSError *error;
+    NSDictionary *resumeDictionary = [NSPropertyListSerialization propertyListWithData:data options:NSPropertyListImmutable format:NULL error:&error];
+    if (!resumeDictionary || error) return NO;
+    
+    // Before iOS 9 & Mac OS X 10.11
+#if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED < 90000)\
+|| (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED < 101100)
+    NSString *localFilePath = [resumeDictionary objectForKey:@"NSURLSessionResumeInfoLocalPath"];
+    if ([localFilePath length] < 1) return NO;
+    return [[NSFileManager defaultManager] fileExistsAtPath:localFilePath];
+#endif
+    // After iOS 9 we can not actually detects if the cache file exists. This plist file has a somehow
+    // complicated structue. Besides, the plist structure is different between iOS 9 and iOS 10.
+    // We can only assume that the plist being successfully parsed means the resume data is valid.
+    return YES;
 }
 
 @end
