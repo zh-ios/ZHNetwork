@@ -153,7 +153,7 @@
     switch (request.requestType) {
         case ZHRequest_Type_GET:
             if (request.downloadPath) {
-                return  [self downloadTaskWithRequest:request downloadPath:request.downloadPath requestSerializer:requestSerializer url:request.urlString params:params downloadProcess:request.downloadProcess];
+                return  [self downloadTaskWithRequest:request downloadPath:request.downloadPath requestSerializer:requestSerializer url:request.urlString params:params];
             } else {
                 method = @"GET";
             }
@@ -208,7 +208,7 @@
                                      error:(NSError *)error {
     
     NSMutableURLRequest *urlRequest =  nil;
-
+    
     if (formdata) {
         urlRequest = [serializer multipartFormRequestWithMethod:method URLString:url parameters:params constructingBodyWithBlock:formdata error:&error];
     } else {
@@ -233,8 +233,7 @@
                    downloadPath:(NSString *)path
               requestSerializer:(AFHTTPRequestSerializer *)requestSerializer
                             url:(NSString *)url
-                         params:(NSDictionary *)params
-                downloadProcess:(DownloadProcessBlock)process {
+                         params:(NSDictionary *)params {
     // 添加请求参数
     NSMutableURLRequest *urlRequest = [requestSerializer requestWithMethod:@"GET" URLString:url parameters:params error:nil];
     
@@ -260,23 +259,38 @@
     NSURL *resumeDataUrl = [self incompleteDownloadTempPathForDownloadPath:path];
     NSData *resumeData = [NSData dataWithContentsOfURL:resumeDataUrl];
  
+    
+    
     BOOL isValid = [self validateResumeData:resumeData];
     
+    /** 请求失败时， filePath 是 nil ，只有当请求成功时filePath才有值，值为文件存储的fileUrl */
+    
+    BOOL isResumeSuccess = NO;
     
     if (resumeData && isValid) {
-        return [self.manager downloadTaskWithResumeData:resumeData progress:process destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
-            return [NSURL fileURLWithPath:targetDownloadPath isDirectory:NO];
-        } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
-            [self handleResult:request urlResponse:response responseObj:filePath error:error];
-        }];
-    } else {
-        return [self.manager downloadTaskWithRequest:urlRequest progress:process destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
+        @try {
+            return [self.manager downloadTaskWithResumeData:resumeData progress:^(NSProgress * _Nonnull downloadProgress) {
+                [self downloadTaskProcess:request process:downloadProgress];
+            } destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
+                return [NSURL fileURLWithPath:targetDownloadPath isDirectory:NO];
+            } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
+                [self handleResult:request urlResponse:response responseObj:filePath error:error];
+            }];
+            isResumeSuccess = YES;
+        } @catch (NSException *exception) {
+            isResumeSuccess = NO;
+        };
+    }
+    
+    if (!isResumeSuccess) {
+        return [self.manager downloadTaskWithRequest:urlRequest progress:^(NSProgress * _Nonnull downloadProgress) {
+            [self downloadTaskProcess:request process:downloadProgress];
+        } destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
             return [NSURL fileURLWithPath:targetDownloadPath isDirectory:NO];
         } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
             [self handleResult:request urlResponse:response responseObj:filePath error:error];
         }];
     }
-    
 }
 
 - (void)handleResult:(ZHRequest *)request urlResponse:(NSURLResponse *)response responseObj:(id)responseObj error:(NSError *)error {
@@ -286,8 +300,8 @@
     request.allHeaderFields = httpResponse.allHeaderFields;
  
     request.responseObj = responseObj;
-    
     NSError *serializerError = nil;
+    NSError *requestError = nil;
     
     if ([responseObj isKindOfClass:[NSData class]]) {
         request.responseData = responseObj;
@@ -295,10 +309,12 @@
         switch (request.responseSerilalizerType) {
             case ZHRequest_ResponseSerilalizerType_JSON:
                 request.responseObj = [self.jsonResponseSerializer responseObjectForResponse:response data:responseObj error:&serializerError];
+                request.responseString = [[NSString alloc] initWithData:responseObj encoding:NSUTF8StringEncoding];
                 break;
             case ZHRequest_ResponseSerilalizerType_HTTP:
                 //
                 request.responseObj = [self.httpResponseSerializer responseObjectForResponse:response data:responseObj error:&serializerError ];
+                request.responseString = [[NSString alloc] initWithData:responseObj encoding:NSUTF8StringEncoding];
                 break;
             case ZHRequest_ResponseSerilalizerType_XML:
                 //
@@ -306,29 +322,31 @@
             default:
                 break;
         }
-        if ([responseObj isKindOfClass:[NSData class]]) {
-            request.responseString = [[NSString alloc] initWithData:responseObj encoding:NSUTF8StringEncoding];
-        } else if ([responseObj isKindOfClass:[NSURL class]]) { // 如果是下载任务
-            request.responseString = [((NSURL *)responseObj) absoluteString];
-        }
     }
 
-    
-    // TODO 返回结果校验
-    BOOL isValidResponse = NO;
-    if (request.statusCode <= 200 && request.statusCode <= 400) {
-        isValidResponse = YES;
-    }
-    
-    BOOL isSuccess = NO;
-    if (!error && !serializerError && isValidResponse) {
-        isSuccess = YES;
+    BOOL isSuccess = YES;
+    if (error) {
+        requestError = error;
+        isSuccess = NO;
+    } else if (serializerError) {
+        requestError = serializerError;
+        isSuccess = NO;
+    } else {
+        // TODO 返回结果校验
+        BOOL isValidResponse = NO;
+        if (request.statusCode <= 200 && request.statusCode <= 400) {
+            isValidResponse = YES;
+        }
+        
+        if (!isValidResponse) {
+            isSuccess = NO;
+        }
     }
     
     if (isSuccess) {
         [self requestDidSuccessWithRequest:request];
     } else {
-        [self requestDidFailedWithRequest:request responseObj:responseObj error:error];
+        [self requestDidFailedWithRequest:request responseObj:responseObj error:requestError];
     }
 }
 
@@ -348,9 +366,10 @@
         // save resumeData'
         NSError *error = nil;
         BOOL ret =  [incompleteData writeToURL:[self incompleteDownloadTempPathForDownloadPath:request.downloadPath] options:NSDataWritingAtomic  error:&error];
-        NSLog(@"--%@",error.userInfo);
+        if (ret) NSLog(@"---------下载数据写入本地数据成功---------👍");
     }
     
+    // 如果请求成功但解析时失败，此时responseObj是fileUrl 是有值得，此时应该删除本地的数据。
     if ([responseObj isKindOfClass:[NSURL class]]) {
         NSURL *fileUrl = (NSURL *)responseObj;
         if (fileUrl.isFileURL && [[NSFileManager defaultManager] fileExistsAtPath:[fileUrl path]]) {
@@ -392,14 +411,22 @@
     }
 }
 
+/*!
+ @method
+ @abstract   下载任务的进度回调
+ @discussion 回调需要放到主线程中
+ */
+- (void)downloadTaskProcess:(ZHRequest *)request process:(NSProgress *)process {
+    // 主线程中回调
+    dispatch_async(dispatch_get_main_queue(), ^{
+        request.downloadProcess(process);
+    });
+}
 
 #pragma mark - Resumable Download
-
 - (NSURL *)incompleteDownloadTempPathForDownloadPath:(NSString *)downloadPath {
     // TODO MD5 String downloadPath 取MD5值，当做存临近数据的url路径
-    
 //    [downloadPath md5]
-    
     NSString *tempPath = [[self incompleteDownloadTempCacheFolder] stringByAppendingPathComponent:@"aaassswedafsdfa"];
     
     

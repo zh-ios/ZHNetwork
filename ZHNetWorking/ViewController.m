@@ -84,8 +84,18 @@
     
     NSString *documentPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
     
+    UILabel *la = [[UILabel alloc] initWithFrame:CGRectMake(100, 300, 200, 40)];
+    la.backgroundColor = [UIColor greenColor];
+    [self.view addSubview:la];
+    
     postRe.downloadProcess = ^(NSProgress *process) {
         NSLog(@"--------->%.2f",process.completedUnitCount/(process.totalUnitCount*1.0));
+        
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            la.text = [NSString stringWithFormat:@"----%.2f",process.completedUnitCount/(process.totalUnitCount*1.0)];
+        });
+
     };
     postRe.downloadPath = documentPath;
     postRe.requestType = ZHRequest_Type_GET;
@@ -108,6 +118,9 @@
     
     
     NSURLSessionDownloadTask *task = [mgr downloadTaskWithRequest:request progress:^(NSProgress * _Nonnull downloadProgress) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            la.text = [NSString stringWithFormat:@"----%.2f",downloadProgress.completedUnitCount/(downloadProgress.totalUnitCount*1.0)];
+        });
         NSLog(@"-------------------->>>");
     } destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
         return [NSURL URLWithString:@"11"];

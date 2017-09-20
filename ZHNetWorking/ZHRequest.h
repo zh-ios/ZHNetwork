@@ -87,12 +87,14 @@ typedef void (^DownloadProcessBlock)(NSProgress *process);
 /*!
  @property
  @abstract 下载文件的路径，如果设置该属性则会使用 downloadTask ，
- 开始下载文件之前会将该路径的文件先移除
+ 开始下载文件之前会将该路径的文件先移除，支持断点下载如果出现网络错误会保存已经下载的内容，
+ 同一个下载 url 下次下载时会从上次的基础继续下载 ，
+ 但是如果下载过程中杀死进程则不会保存已下载的数据。
  */
 @property(nonatomic, copy) NSString *downloadPath;
 /*!
  @property
- @abstract 下载文件的进度
+ @abstract 下载文件的进度,该回调已经在主线程中！
  */
 @property(nonatomic, copy) DownloadProcessBlock downloadProcess;
 
