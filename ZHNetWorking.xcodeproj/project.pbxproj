@@ -17,6 +17,8 @@
 		86458D5C1F31D487006F7FF3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 86458D5A1F31D487006F7FF3 /* LaunchScreen.storyboard */; };
 		86566E081F67C89800C2D52B /* ZHRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 86566E071F67C89800C2D52B /* ZHRequest.m */; };
 		86566E0B1F67D34A00C2D52B /* ZHRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 86566E0A1F67D34A00C2D52B /* ZHRequestManager.m */; };
+		869A1FE51F72490F00697675 /* ZHBatchRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 869A1FE41F72490F00697675 /* ZHBatchRequest.m */; };
+		869A1FE81F7266EE00697675 /* ZHBatchRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 869A1FE71F7266EE00697675 /* ZHBatchRequestManager.m */; };
 		AD4D85DEC8965522AD26CCA6 /* libPods-ZHNetWorking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9380F8EE815297784EA124FB /* libPods-ZHNetWorking.a */; };
 /* End PBXBuildFile section */
 
@@ -37,6 +39,10 @@
 		86566E071F67C89800C2D52B /* ZHRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZHRequest.m; sourceTree = "<group>"; };
 		86566E091F67D34A00C2D52B /* ZHRequestManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZHRequestManager.h; sourceTree = "<group>"; };
 		86566E0A1F67D34A00C2D52B /* ZHRequestManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZHRequestManager.m; sourceTree = "<group>"; };
+		869A1FE31F72490F00697675 /* ZHBatchRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHBatchRequest.h; sourceTree = "<group>"; };
+		869A1FE41F72490F00697675 /* ZHBatchRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZHBatchRequest.m; sourceTree = "<group>"; };
+		869A1FE61F7266EE00697675 /* ZHBatchRequestManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHBatchRequestManager.h; sourceTree = "<group>"; };
+		869A1FE71F7266EE00697675 /* ZHBatchRequestManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZHBatchRequestManager.m; sourceTree = "<group>"; };
 		869AEC5B1F6B7A9B00833A09 /* ZHRequestDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZHRequestDelegate.h; sourceTree = "<group>"; };
 		9380F8EE815297784EA124FB /* libPods-ZHNetWorking.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZHNetWorking.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A956FAE5D41D472CECCB892B /* Pods-ZHNetWorking.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZHNetWorking.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ZHNetWorking/Pods-ZHNetWorking.debug.xcconfig"; sourceTree = "<group>"; };
@@ -87,6 +93,10 @@
 				86566E091F67D34A00C2D52B /* ZHRequestManager.h */,
 				86566E0A1F67D34A00C2D52B /* ZHRequestManager.m */,
 				869AEC5B1F6B7A9B00833A09 /* ZHRequestDelegate.h */,
+				869A1FE31F72490F00697675 /* ZHBatchRequest.h */,
+				869A1FE41F72490F00697675 /* ZHBatchRequest.m */,
+				869A1FE61F7266EE00697675 /* ZHBatchRequestManager.h */,
+				869A1FE71F7266EE00697675 /* ZHBatchRequestManager.m */,
 				86458D551F31D487006F7FF3 /* Main.storyboard */,
 				86458D581F31D487006F7FF3 /* Assets.xcassets */,
 				86458D5A1F31D487006F7FF3 /* LaunchScreen.storyboard */,
@@ -250,6 +260,8 @@
 				86458D541F31D487006F7FF3 /* ViewController.m in Sources */,
 				86458D511F31D487006F7FF3 /* AppDelegate.m in Sources */,
 				86458D4E1F31D487006F7FF3 /* main.m in Sources */,
+				869A1FE51F72490F00697675 /* ZHBatchRequest.m in Sources */,
+				869A1FE81F7266EE00697675 /* ZHBatchRequestManager.m in Sources */,
 				86566E0B1F67D34A00C2D52B /* ZHRequestManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

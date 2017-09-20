@@ -11,7 +11,7 @@
 #import "ZHRequestManager.h"
 
 #import "AFNetworking.h"
-
+#import "ZHBatchRequest.h"
 #define kUserToken          @"02b504cc5d6d4666be41e40f8946e1d6"
 
 @interface ViewController ()<ZHRequestDelegate>
@@ -99,7 +99,7 @@
     };
     postRe.downloadPath = documentPath;
     postRe.requestType = ZHRequest_Type_GET;
-    [postRe start];
+//    [postRe start];
     
     
 //    http://120.25.226.186:32812/resources/videos/minion_01.mp4
@@ -127,8 +127,40 @@
     } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
         NSLog(@"----");
     }];
+    [task resume];
     
-//    [task resume];
+    [self batchRequest];
+}
+
+
+- (void)batchRequest {
+    NSString *downloadStr = @"http://120.25.226.186:32812/resources/videos/minion_01.mp4";
+    ZHRequest *postRe = [[ZHRequest alloc] init];
+    postRe.urlString = downloadStr;
+    postRe.delegate = self;
+
+    NSString *documentPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    postRe.downloadPath = documentPath;
+    postRe.requestType = ZHRequest_Type_GET;
+    
+    ZHRequest *postRe1 = [[ZHRequest alloc] init];
+    postRe1.urlString = downloadStr;
+    postRe1.delegate = self;
+    
+    postRe1.downloadPath = documentPath;
+    postRe1.requestType = ZHRequest_Type_GET;
+    
+    ZHBatchRequest *batchRE = [[ZHBatchRequest alloc] initWithRequestArray:@[postRe,postRe1]];
+    
+    postRe1.delegate = self;
+    postRe.delegate = self;
+    postRe.downloadProcess = ^(NSProgress *process) {
+        NSLog(@"--------->%.2f",process.completedUnitCount/(process.totalUnitCount*1.0));
+    };
+    postRe1.downloadProcess = ^(NSProgress *process) {
+        NSLog(@"--------->%.2f",process.completedUnitCount/(process.totalUnitCount*1.0));
+    };
+    [batchRE start];
 }
 
 

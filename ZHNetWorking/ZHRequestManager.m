@@ -153,7 +153,7 @@
     switch (request.requestType) {
         case ZHRequest_Type_GET:
             if (request.downloadPath) {
-                return  [self downloadTaskWithRequest:request downloadPath:request.downloadPath requestSerializer:requestSerializer url:request.urlString params:params];
+                return  [self downloadTaskWithRequest:request downloadPath:request.downloadPath requestSerializer:requestSerializer url:request.urlString params:params downloadProcess:request.downloadProcess];
             } else {
                 method = @"GET";
             }
@@ -233,7 +233,9 @@
                    downloadPath:(NSString *)path
               requestSerializer:(AFHTTPRequestSerializer *)requestSerializer
                             url:(NSString *)url
-                         params:(NSDictionary *)params {
+
+                                               params:(NSDictionary *)params
+                                      downloadProcess:(DownloadProcessBlock)process{
     // 添加请求参数
     NSMutableURLRequest *urlRequest = [requestSerializer requestWithMethod:@"GET" URLString:url parameters:params error:nil];
     
@@ -269,9 +271,8 @@
     
     if (resumeData && isValid) {
         @try {
-            return [self.manager downloadTaskWithResumeData:resumeData progress:^(NSProgress * _Nonnull downloadProgress) {
-                [self downloadTaskProcess:request process:downloadProgress];
-            } destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
+            return [self.manager downloadTaskWithResumeData:resumeData progress:process
+             destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
                 return [NSURL fileURLWithPath:targetDownloadPath isDirectory:NO];
             } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
                 [self handleResult:request urlResponse:response responseObj:filePath error:error];
@@ -283,9 +284,7 @@
     }
     
     if (!isResumeSuccess) {
-        return [self.manager downloadTaskWithRequest:urlRequest progress:^(NSProgress * _Nonnull downloadProgress) {
-            [self downloadTaskProcess:request process:downloadProgress];
-        } destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
+        return [self.manager downloadTaskWithRequest:urlRequest progress:process  destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
             return [NSURL fileURLWithPath:targetDownloadPath isDirectory:NO];
         } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
             [self handleResult:request urlResponse:response responseObj:filePath error:error];
@@ -334,7 +333,7 @@
     } else {
         // TODO 返回结果校验
         BOOL isValidResponse = NO;
-        if (request.statusCode <= 200 && request.statusCode <= 400) {
+        if (request.statusCode >= 200 && request.statusCode <= 400) {
             isValidResponse = YES;
         }
         
@@ -357,6 +356,9 @@
     }
     if ([request.delegate respondsToSelector:@selector(requestFinished:responseStr:)]) {
         [request.delegate requestFinished:request responseStr:request.responseString];
+    }
+    if (request.successBlock) {
+        request.successBlock(request.responseObj);
     }
 }
 - (void)requestDidFailedWithRequest:(ZHRequest *)request responseObj:(id)responseObj error:(NSError *)error {
@@ -383,6 +385,10 @@
     if ([request.delegate respondsToSelector:@selector(requestFailed:)]) {
         [request.delegate requestFailed:error];
     }
+    
+    if (request.failureBlock) {
+        request.failureBlock(error);
+    }
 }
 
 
@@ -391,7 +397,9 @@
     NSURLSessionTask *sessionTask = request.sessionTask;
     [sessionTask cancel];
     Lock;
-    [_recordRequests removeObjectForKey:request.uniqueIdentifier];
+    if ([_recordRequests objectForKey:request.uniqueIdentifier]) {
+        [_recordRequests removeObjectForKey:request.uniqueIdentifier];
+    }
     UnLock;
 }
 
@@ -409,18 +417,6 @@
             request = nil;
         }
     }
-}
-
-/*!
- @method
- @abstract   下载任务的进度回调
- @discussion 回调需要放到主线程中
- */
-- (void)downloadTaskProcess:(ZHRequest *)request process:(NSProgress *)process {
-    // 主线程中回调
-    dispatch_async(dispatch_get_main_queue(), ^{
-        request.downloadProcess(process);
-    });
 }
 
 #pragma mark - Resumable Download

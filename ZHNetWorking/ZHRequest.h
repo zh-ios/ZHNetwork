@@ -94,9 +94,16 @@ typedef void (^DownloadProcessBlock)(NSProgress *process);
 @property(nonatomic, copy) NSString *downloadPath;
 /*!
  @property
- @abstract 下载文件的进度,该回调已经在主线程中！
+ @abstract 下载文件的进度,需要放在主线程中！
  */
 @property(nonatomic, copy) DownloadProcessBlock downloadProcess;
+
+/*!
+ @property
+ @abstract 成功失败的回调
+ */
+@property(nonatomic, copy) SuccessBlock successBlock;
+@property(nonatomic, copy) FailureBlock failureBlock;
 
 @property(nonatomic, weak) id<ZHRequestDelegate> delegate;
 
