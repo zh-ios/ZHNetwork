@@ -74,14 +74,24 @@ typedef void (^DownloadProcessBlock)(NSProgress *process);
  */
 @property(nonatomic, strong) NSDictionary *requestHeaders;
 
+/*!
+ @property
+ @abstract 默认get
+ */
 @property(nonatomic, assign) ZHRequest_Type requestType;
-
+/*!
+ @property
+ @abstract 默认 http
+ */
 @property(nonatomic, assign) ZHRequest_RequestSerializerType requestSerializerType;
 
 @property(nonatomic, copy) ConstructingFormDataBlock formData;
 
 @property(nonatomic, assign) ZHRequest_Priority priority;
-
+/*!
+ @property
+ @abstract 默认JSON
+ */
 @property(nonatomic, assign) ZHRequest_ResponseSerilalizerType responseSerilalizerType;
 
 /*!

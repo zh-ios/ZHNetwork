@@ -8,6 +8,7 @@
 
 #import "ZHBatchRequest.h"
 #import "ZHRequest.h"
+#import "ZHBatchRequestManager.h"
 @interface ZHBatchRequest()<ZHRequestDelegate>
 
 @property(nonatomic, strong, readwrite) NSArray<ZHRequest *> *requestArr;
@@ -24,15 +25,15 @@
 }
 
 - (void)start {
-    
-    
-    
+    ZHBatchRequestManager *batchManager = [ZHBatchRequestManager sharedManager];
+    [batchManager addBatchRequest:self];
 }
 
 
 
 - (void)stop {
-    
+    ZHBatchRequestManager *batchManager = [ZHBatchRequestManager sharedManager];
+    [batchManager cancelBatchRequest:self];
 }
 
 

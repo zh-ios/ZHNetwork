@@ -160,6 +160,9 @@
     postRe1.downloadProcess = ^(NSProgress *process) {
         NSLog(@"--------->%.2f",process.completedUnitCount/(process.totalUnitCount*1.0));
     };
+    
+    
+    
     [batchRE start];
 }
 

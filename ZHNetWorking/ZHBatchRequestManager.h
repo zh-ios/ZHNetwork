@@ -12,6 +12,8 @@
 
 @interface ZHBatchRequestManager : NSObject
 
+
+
 + (instancetype)sharedManager;
 
 - (void)addBatchRequest:(ZHBatchRequest *)batchRequest;
