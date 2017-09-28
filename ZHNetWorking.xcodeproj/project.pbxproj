@@ -19,6 +19,10 @@
 		86566E0B1F67D34A00C2D52B /* ZHRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 86566E0A1F67D34A00C2D52B /* ZHRequestManager.m */; };
 		869A1FE51F72490F00697675 /* ZHBatchRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 869A1FE41F72490F00697675 /* ZHBatchRequest.m */; };
 		869A1FE81F7266EE00697675 /* ZHBatchRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 869A1FE71F7266EE00697675 /* ZHBatchRequestManager.m */; };
+		869A1FEB1F739B0300697675 /* ZHChainRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 869A1FEA1F739B0300697675 /* ZHChainRequest.m */; };
+		869A1FEE1F739B1400697675 /* ZHChainRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 869A1FED1F739B1400697675 /* ZHChainRequestManager.m */; };
+		86E5592E1F7CF696002757B1 /* ZHDNSDes.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E5592D1F7CF696002757B1 /* ZHDNSDes.m */; };
+		86E559311F7CF6DA002757B1 /* ZHDNSHex.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E559301F7CF6DA002757B1 /* ZHDNSHex.m */; };
 		AD4D85DEC8965522AD26CCA6 /* libPods-ZHNetWorking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9380F8EE815297784EA124FB /* libPods-ZHNetWorking.a */; };
 /* End PBXBuildFile section */
 
@@ -43,7 +47,15 @@
 		869A1FE41F72490F00697675 /* ZHBatchRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZHBatchRequest.m; sourceTree = "<group>"; };
 		869A1FE61F7266EE00697675 /* ZHBatchRequestManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHBatchRequestManager.h; sourceTree = "<group>"; };
 		869A1FE71F7266EE00697675 /* ZHBatchRequestManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZHBatchRequestManager.m; sourceTree = "<group>"; };
+		869A1FE91F739B0300697675 /* ZHChainRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHChainRequest.h; sourceTree = "<group>"; };
+		869A1FEA1F739B0300697675 /* ZHChainRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZHChainRequest.m; sourceTree = "<group>"; };
+		869A1FEC1F739B1400697675 /* ZHChainRequestManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHChainRequestManager.h; sourceTree = "<group>"; };
+		869A1FED1F739B1400697675 /* ZHChainRequestManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZHChainRequestManager.m; sourceTree = "<group>"; };
 		869AEC5B1F6B7A9B00833A09 /* ZHRequestDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZHRequestDelegate.h; sourceTree = "<group>"; };
+		86E5592C1F7CF696002757B1 /* ZHDNSDes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZHDNSDes.h; sourceTree = "<group>"; };
+		86E5592D1F7CF696002757B1 /* ZHDNSDes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZHDNSDes.m; sourceTree = "<group>"; };
+		86E5592F1F7CF6DA002757B1 /* ZHDNSHex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZHDNSHex.h; sourceTree = "<group>"; };
+		86E559301F7CF6DA002757B1 /* ZHDNSHex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZHDNSHex.m; sourceTree = "<group>"; };
 		9380F8EE815297784EA124FB /* libPods-ZHNetWorking.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZHNetWorking.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A956FAE5D41D472CECCB892B /* Pods-ZHNetWorking.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZHNetWorking.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ZHNetWorking/Pods-ZHNetWorking.debug.xcconfig"; sourceTree = "<group>"; };
 		E56DDE47A214ABD51D5977EE /* Pods-ZHNetWorking.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZHNetWorking.release.xcconfig"; path = "Pods/Target Support Files/Pods-ZHNetWorking/Pods-ZHNetWorking.release.xcconfig"; sourceTree = "<group>"; };
@@ -84,6 +96,7 @@
 		86458D4B1F31D487006F7FF3 /* ZHNetWorking */ = {
 			isa = PBXGroup;
 			children = (
+				86E5592B1F7CF663002757B1 /* DNSPod */,
 				86458D4F1F31D487006F7FF3 /* AppDelegate.h */,
 				86458D501F31D487006F7FF3 /* AppDelegate.m */,
 				86458D521F31D487006F7FF3 /* ViewController.h */,
@@ -97,6 +110,10 @@
 				869A1FE41F72490F00697675 /* ZHBatchRequest.m */,
 				869A1FE61F7266EE00697675 /* ZHBatchRequestManager.h */,
 				869A1FE71F7266EE00697675 /* ZHBatchRequestManager.m */,
+				869A1FE91F739B0300697675 /* ZHChainRequest.h */,
+				869A1FEA1F739B0300697675 /* ZHChainRequest.m */,
+				869A1FEC1F739B1400697675 /* ZHChainRequestManager.h */,
+				869A1FED1F739B1400697675 /* ZHChainRequestManager.m */,
 				86458D551F31D487006F7FF3 /* Main.storyboard */,
 				86458D581F31D487006F7FF3 /* Assets.xcassets */,
 				86458D5A1F31D487006F7FF3 /* LaunchScreen.storyboard */,
@@ -112,6 +129,17 @@
 				86458D4D1F31D487006F7FF3 /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		86E5592B1F7CF663002757B1 /* DNSPod */ = {
+			isa = PBXGroup;
+			children = (
+				86E5592C1F7CF696002757B1 /* ZHDNSDes.h */,
+				86E5592D1F7CF696002757B1 /* ZHDNSDes.m */,
+				86E5592F1F7CF6DA002757B1 /* ZHDNSHex.h */,
+				86E559301F7CF6DA002757B1 /* ZHDNSHex.m */,
+			);
+			path = DNSPod;
 			sourceTree = "<group>";
 		};
 		9DFAA07CE7468C01A054B352 /* Pods */ = {
@@ -257,11 +285,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				86566E081F67C89800C2D52B /* ZHRequest.m in Sources */,
+				869A1FEB1F739B0300697675 /* ZHChainRequest.m in Sources */,
+				869A1FEE1F739B1400697675 /* ZHChainRequestManager.m in Sources */,
+				86E559311F7CF6DA002757B1 /* ZHDNSHex.m in Sources */,
 				86458D541F31D487006F7FF3 /* ViewController.m in Sources */,
 				86458D511F31D487006F7FF3 /* AppDelegate.m in Sources */,
 				86458D4E1F31D487006F7FF3 /* main.m in Sources */,
 				869A1FE51F72490F00697675 /* ZHBatchRequest.m in Sources */,
 				869A1FE81F7266EE00697675 /* ZHBatchRequestManager.m in Sources */,
+				86E5592E1F7CF696002757B1 /* ZHDNSDes.m in Sources */,
 				86566E0B1F67D34A00C2D52B /* ZHRequestManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
