@@ -12,9 +12,13 @@
 
 #import "AFNetworking.h"
 #import "ZHBatchRequest.h"
+#import "ZHDNSHttpManager.h"
+
 #define kUserToken          @"02b504cc5d6d4666be41e40f8946e1d6"
 
 @interface ViewController ()<ZHRequestDelegate>
+
+@property(nonatomic, strong) ZHDNSHttpManager *dnsmanager;
 
 @end
 
@@ -23,6 +27,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    
+    self.dnsmanager = [[ZHDNSHttpManager alloc] init];
+    [self.dnsmanager getAllDomain];
     
 // get 请求
 //    NSDictionary * dic = @{
@@ -127,9 +134,9 @@
     } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
         NSLog(@"----");
     }];
-    [task resume];
+//    [task resume];
     
-    [self batchRequest];
+//    [self batchRequest];
 }
 
 
@@ -164,6 +171,10 @@
     
     
     [batchRE start];
+    
+    
+    
+    
 }
 
 
