@@ -33,4 +33,20 @@
  @param      cache 是否缓存域名
  */
 - (void)addDomainsAndAllRefresh:(NSArray *)domainArr cache:(BOOL)cache;
+
+/*!
+ @method
+ @abstract   根据请求的urlstr的domain 获取对应的dnsip
+ @discussion 返回domain替换为ip后的url
+ @param      reallyUrlStr 实际请求的urlStr urlStr原请求的urlStr
+ */
+- (NSString *)getIpUrlStrWithReallyUrlStr:(NSString *)reallyUrlStr requestUrlStr:(NSString *)urlStr;
+
+/*!
+ @method
+ @abstract   设置ip地址无效
+ @discussion 设置domain对应的ip地址无效
+ @param     reallyUrlStr 实际的请求url urlStr 原请求url
+ */
+- (void)setIpInvalidate:(NSString *)reallyUrlStr requestUrlStr:(NSString *)urlStr;
 @end

@@ -7,13 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@class ZHDNSResolveItem;
+#import "ZHDNSResolveItem.h"
 
 @interface ZHDNSIpService : NSObject
 
-@property(nonatomic, strong) ZHDNSResolveItem *item;
 
+/// 一个service 可能 能解析出多个 resolveItem ！！！
 /*!
  @property
  @abstract 是否缓存ip列表
@@ -31,6 +30,23 @@
  */
 @property(nonatomic, assign) BOOL isNetStatusChanged;
 
+/*!
+ @property
+ @abstract 可用的resolveItemArr 
+ */
+@property(nonatomic, strong) NSArray *resolveItemArr;
+
+/*!
+ @property
+ @abstract  当前接口处理的域名 （可能是ip 也可能是真是的域名如 baidu.com）
+ */
+@property(nonatomic, copy) NSString *domain;
+
+/*!
+ @property
+ @abstract 解析状态
+ */
+@property(nonatomic, assign) DNSResolveStatus resolveStatus;
 
 - (instancetype)initWithResolveItem:(ZHDNSResolveItem *)item;
 
