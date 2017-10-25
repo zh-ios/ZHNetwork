@@ -27,6 +27,9 @@
 #import "ZHRequestManager.h"
 #import "ZHDNSIpService.h"
 #import "ZHDNSResolveItem.h"
+
+#import "AFNetworkReachabilityManager.h"
+
 @interface ZHDNSHttpManager ()<ZHRequestDelegate>
 
 @property(nonatomic, strong) NSArray *dnsIpServiceArr;
@@ -44,6 +47,37 @@
         }
     });
     return _manager;
+}
+
+- (instancetype)init {
+    if (self = [super init]) {
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(netDidChanged) name:AFNetworkingReachabilityDidChangeNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(beginMonitorNetStatus) name:UIApplicationDidBecomeActiveNotification object:nil];
+    }
+    return self;
+}
+
+- (void)beginMonitorNetStatus {{
+    [[AFNetworkReachabilityManager manager] startMonitoring];
+}}
+
+/**  这个回调会执行多次 */
+- (void)netDidChanged {
+    AFNetworkReachabilityManager *netManager = [AFNetworkReachabilityManager manager];
+    switch (netManager.networkReachabilityStatus) {
+        case AFNetworkReachabilityStatusNotReachable:
+            
+        case AFNetworkReachabilityStatusReachableViaWWAN:
+            // 传入的域名和当前已经存在的域名 取并集后重发
+            [self addDomainsAndAllRefresh:nil cache:NO netChanged:YES];
+        case AFNetworkReachabilityStatusReachableViaWiFi:
+            // 传入的域名和当前已经存在的域名 取并集后重发
+            [self addDomainsAndAllRefresh:nil cache:NO netChanged:YES];
+        case AFNetworkReachabilityStatusUnknown:
+            // 传入的域名和当前已经存在的域名 取并集后重发
+            [self addDomainsAndAllRefresh:nil cache:NO netChanged:YES];
+    }
 }
 
 - (void)getAllDomain {
@@ -140,6 +174,7 @@
                           cache:(BOOL)cache
                      netChanged:(BOOL)netChanged{
     
+    NSLog(@"-------->全部重发");
     // 遍历现有的域名数组，如果已经在已经存在则不处理
     __block NSMutableArray *tempDnsIpServiceArr = [[NSMutableArray alloc] initWithArray:self.dnsIpServiceArr];
     
@@ -195,18 +230,42 @@
     NSString *ipAddr = [self getNextAvaiableIpAddressWithDomain:reallyUrlStr requestUrlStr:requestUrlStr];
     if (!ipAddr) {
         NSLog(@"----->没有找到可用的地址");
-        [self addDomainsAndAllRefresh:[NSArray arrayWithObjects:[[NSURL URLWithString:reallyUrlStr] host], nil] cache:NO];
+        // 进行重发
+        [self addDomainAndRefresh:[NSArray arrayWithObjects:[[NSURL URLWithString:reallyUrlStr] host], nil]];
         return @"";
     }
-    //
+    // 没有可用的ip地址
     if ([ipAddr isKindOfClass:[NSString class]] && [ipAddr length] == 0) {
-        <#statements#>
+        // 进行重发
+        [self addDomainAndRefresh:[NSArray arrayWithObjects:[[NSURL URLWithString:reallyUrlStr] host], nil]];
+        return @"";
+    } else if ([ipAddr isKindOfClass:[NSString class]] && [ipAddr length] > 0) {
+        NSString *originHost = [[NSURL URLWithString:requestUrlStr] host];
+        resultStr = [requestUrlStr stringByReplacingCharactersInRange:NSMakeRange(0, originHost.length) withString:ipAddr];
+    } else {
+        return nil;
     }
     return resultStr;
 }
 
+/*!
+ @method
+ @abstract   设置dnsip失效
+ @discussion
+ @param      reallyUrlStr 真实的请求地址   requestStr：当前请求地址
+ */
 - (void)setIpInvalidate:(NSString *)reallyUrlStr requestUrlStr:(NSString *)urlStr {
-    
+    if ([reallyUrlStr isKindOfClass:[NSString class]] && reallyUrlStr.length == 0) return;
+    if ([urlStr isKindOfClass:[NSString class]] && urlStr.length == 0) return;
+    // 如果当前实际请求的域名和原域名一样则不处理
+    if ([[[NSURL URLWithString:reallyUrlStr] host] isEqualToString:[[NSURL URLWithString:urlStr] host]]) return;
+    // 防止遍历数组的时候数组被操作导致闪退
+    NSArray *tempDnsIpService = [self.dnsIpServiceArr copy];
+    for (ZHDNSIpService *service in tempDnsIpService) {
+        if ([service.domain isEqualToString:[[NSURL URLWithString:reallyUrlStr] host]]) {
+            service.resolveStatus = DNSResolveStatus_Failed;
+        }
+    }
 }
 
 - (NSString *)getNextAvaiableIpAddressWithDomain:(NSString *)domain requestUrlStr:(NSString *)requestUrl {
