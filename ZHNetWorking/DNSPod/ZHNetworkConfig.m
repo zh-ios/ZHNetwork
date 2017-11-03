@@ -10,4 +10,11 @@
 
 @implementation ZHNetworkConfig
 
+- (instancetype)init {
+    if (self = [super init]) {
+        self.isUseDNSPod = YES;
+    }
+    return self;
+}
+
 @end

@@ -8,6 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
+
+/** reallyUrl 代表的是客户端传入的url ， requestUrl 则实际真正发请求的url
+ 该url有可能和reallyUrl相等 也有可能是将domain替换为ip后的请求 。
+ 
+ 反向代理的处理逻辑类似 ！！！ 当有可用ip 但是ip状态为失效时使用反向代理。
+ 
+ */
+
 @interface ZHDNSHttpManager : NSObject
 
 /*!
@@ -36,7 +44,10 @@
 
 /*!
  @method
- @abstract   根据请求的urlstr的domain 获取对应的dnsip
+ @abstract
+ 根据请求的urlstr的domain 获取对应的dnsip， 在发起网络请求的时候调用这个方法，
+ 在改方法内部会根据传入的domain查到相应的ip 地址，如果有值，则使用 dnspod 请求 ，如果没有值则
+ 使用原始域名进行请求或者走反向代理 。
  @discussion 返回domain替换为ip后的url
  @param      reallyUrlStr 原请求的urlStr 实际原请求的urlStr
  */

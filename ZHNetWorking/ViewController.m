@@ -30,6 +30,7 @@
     
     self.dnsmanager = [[ZHDNSHttpManager alloc] init];
     [self.dnsmanager getAllDomain];
+
     
 // get 请求
 //    NSDictionary * dic = @{
@@ -134,7 +135,8 @@
     } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
         NSLog(@"----");
     }];
-//    [task resume];
+    
+    [task resume];
     
 //    [self batchRequest];
 }

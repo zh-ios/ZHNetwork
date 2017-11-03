@@ -62,7 +62,9 @@
     [[AFNetworkReachabilityManager manager] startMonitoring];
 }}
 
-/**  这个回调会执行多次 */
+
+#warning ----此回调在网络变化的时候回执行，且会执行多次
+ /**  这个回调会执行多次 !!!!!!!!! */
 - (void)netDidChanged {
     AFNetworkReachabilityManager *netManager = [AFNetworkReachabilityManager manager];
     switch (netManager.networkReachabilityStatus) {
@@ -226,7 +228,8 @@
 
 - (NSString *)getIpUrlStrWithReallyUrlStr:(NSString *)reallyUrlStr requestUrlStr:(NSString *)requestUrlStr {
     NSString *resultStr = requestUrlStr;
-    if (reallyUrlStr.length == 0 || requestUrlStr.length == 0) return nil;
+    // 如果请求的url 地址不合法return nil
+    if (!requestUrlStr || requestUrlStr.length == 0) return nil;
     NSString *ipAddr = [self getNextAvaiableIpAddressWithDomain:reallyUrlStr requestUrlStr:requestUrlStr];
     if (!ipAddr) {
         NSLog(@"----->没有找到可用的地址");
@@ -251,20 +254,28 @@
 /*!
  @method
  @abstract   设置dnsip失效
- @discussion
+ @discussion  设置dnsip失效
  @param      reallyUrlStr 真实的请求地址   requestStr：当前请求地址
  */
 - (void)setIpInvalidate:(NSString *)reallyUrlStr requestUrlStr:(NSString *)urlStr {
     if ([reallyUrlStr isKindOfClass:[NSString class]] && reallyUrlStr.length == 0) return;
     if ([urlStr isKindOfClass:[NSString class]] && urlStr.length == 0) return;
-    // 如果当前实际请求的域名和原域名一样则不处理
+    // 如果当前实际请求的域名和原域名一样则不处理(这种情况说明走的是原始域名)
     if ([[[NSURL URLWithString:reallyUrlStr] host] isEqualToString:[[NSURL URLWithString:urlStr] host]]) return;
     // 防止遍历数组的时候数组被操作导致闪退
     NSArray *tempDnsIpService = [self.dnsIpServiceArr copy];
     for (ZHDNSIpService *service in tempDnsIpService) {
         if ([service.domain isEqualToString:[[NSURL URLWithString:reallyUrlStr] host]]) {
-            service.resolveStatus = DNSResolveStatus_Failed;
+            for (int j = 0; j<service.resolveItemArr.count; j++) {
+                ZHDNSResolveItem *item = service.resolveItemArr[j];
+                if ([[[NSURL URLWithString:reallyUrlStr] host] isEqualToString:item.ipAddr]) {
+                    item.resolveStatus = DNSResolveStatus_Failed;
+                    NSLog(@"------>设置当前dnspod 地址失效 ip=%@",item.ipAddr);
+                    break;
+                }
+            }
         }
+        break;
     }
 }
 
