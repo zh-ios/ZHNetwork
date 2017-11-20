@@ -38,7 +38,7 @@
 
 /*!
  @property
- @abstract  当前接口处理的域名 （可能是ip 也可能是真是的域名如 baidu.com）
+ @abstract  当前接口处理的域名
  */
 @property(nonatomic, copy) NSString *domain;
 

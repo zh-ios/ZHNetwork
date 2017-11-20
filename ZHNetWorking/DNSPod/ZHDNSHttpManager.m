@@ -92,6 +92,16 @@
     [[ZHRequestManager sharedManager] addRequest:domainRequest];
 }
 
+- (NSArray *)getAllDomainList {
+    NSMutableArray *domainArr = [NSMutableArray array];
+    for (ZHDNSIpService *service in self.dnsIpServiceArr) {
+        if (service.resolveItemArr.count > 0) {
+            [domainArr addObject:service.domain];
+        }
+    }
+    return [NSArray arrayWithArray:[domainArr copy]];
+}
+
 #pragma mark ----ZHRequestDelegate
 //- (void)requestFinished:(ZHRequest *)request responseObj:(id)responseObj {
 //

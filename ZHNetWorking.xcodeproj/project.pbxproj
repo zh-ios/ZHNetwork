@@ -15,8 +15,10 @@
 		86458D571F31D487006F7FF3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 86458D551F31D487006F7FF3 /* Main.storyboard */; };
 		86458D591F31D487006F7FF3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 86458D581F31D487006F7FF3 /* Assets.xcassets */; };
 		86458D5C1F31D487006F7FF3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 86458D5A1F31D487006F7FF3 /* LaunchScreen.storyboard */; };
+		864B27561FBA88EC00A9A170 /* ZHTamperConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 864B27551FBA88EC00A9A170 /* ZHTamperConfig.m */; };
 		86566E081F67C89800C2D52B /* ZHRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 86566E071F67C89800C2D52B /* ZHRequest.m */; };
 		86566E0B1F67D34A00C2D52B /* ZHRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 86566E0A1F67D34A00C2D52B /* ZHRequestManager.m */; };
+		8687B0501FC2C68300A4CAB0 /* ZHNetworkingManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8687B04F1FC2C68300A4CAB0 /* ZHNetworkingManager.m */; };
 		869A1FE51F72490F00697675 /* ZHBatchRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 869A1FE41F72490F00697675 /* ZHBatchRequest.m */; };
 		869A1FE81F7266EE00697675 /* ZHBatchRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 869A1FE71F7266EE00697675 /* ZHBatchRequestManager.m */; };
 		869A1FEB1F739B0300697675 /* ZHChainRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 869A1FEA1F739B0300697675 /* ZHChainRequest.m */; };
@@ -43,10 +45,14 @@
 		86458D581F31D487006F7FF3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		86458D5B1F31D487006F7FF3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		86458D5D1F31D487006F7FF3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		864B27541FBA88EC00A9A170 /* ZHTamperConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHTamperConfig.h; sourceTree = "<group>"; };
+		864B27551FBA88EC00A9A170 /* ZHTamperConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZHTamperConfig.m; sourceTree = "<group>"; };
 		86566E061F67C89800C2D52B /* ZHRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZHRequest.h; sourceTree = "<group>"; };
 		86566E071F67C89800C2D52B /* ZHRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZHRequest.m; sourceTree = "<group>"; };
 		86566E091F67D34A00C2D52B /* ZHRequestManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZHRequestManager.h; sourceTree = "<group>"; };
 		86566E0A1F67D34A00C2D52B /* ZHRequestManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZHRequestManager.m; sourceTree = "<group>"; };
+		8687B04E1FC2C68300A4CAB0 /* ZHNetworkingManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHNetworkingManager.h; sourceTree = "<group>"; };
+		8687B04F1FC2C68300A4CAB0 /* ZHNetworkingManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZHNetworkingManager.m; sourceTree = "<group>"; };
 		869A1FE31F72490F00697675 /* ZHBatchRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHBatchRequest.h; sourceTree = "<group>"; };
 		869A1FE41F72490F00697675 /* ZHBatchRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZHBatchRequest.m; sourceTree = "<group>"; };
 		869A1FE61F7266EE00697675 /* ZHBatchRequestManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHBatchRequestManager.h; sourceTree = "<group>"; };
@@ -108,11 +114,14 @@
 		86458D4B1F31D487006F7FF3 /* ZHNetWorking */ = {
 			isa = PBXGroup;
 			children = (
+				864B27531FBA88B400A9A170 /* Tamper */,
 				86E5592B1F7CF663002757B1 /* DNSPod */,
 				86458D4F1F31D487006F7FF3 /* AppDelegate.h */,
 				86458D501F31D487006F7FF3 /* AppDelegate.m */,
 				86458D521F31D487006F7FF3 /* ViewController.h */,
 				86458D531F31D487006F7FF3 /* ViewController.m */,
+				8687B04E1FC2C68300A4CAB0 /* ZHNetworkingManager.h */,
+				8687B04F1FC2C68300A4CAB0 /* ZHNetworkingManager.m */,
 				86566E061F67C89800C2D52B /* ZHRequest.h */,
 				86566E071F67C89800C2D52B /* ZHRequest.m */,
 				86566E091F67D34A00C2D52B /* ZHRequestManager.h */,
@@ -141,6 +150,16 @@
 				86458D4D1F31D487006F7FF3 /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		864B27531FBA88B400A9A170 /* Tamper */ = {
+			isa = PBXGroup;
+			children = (
+				864B27541FBA88EC00A9A170 /* ZHTamperConfig.h */,
+				864B27551FBA88EC00A9A170 /* ZHTamperConfig.m */,
+			);
+			name = Tamper;
+			path = Tamper/Tamper;
 			sourceTree = "<group>";
 		};
 		86E5592B1F7CF663002757B1 /* DNSPod */ = {
@@ -313,9 +332,11 @@
 				86458D4E1F31D487006F7FF3 /* main.m in Sources */,
 				869A1FE51F72490F00697675 /* ZHBatchRequest.m in Sources */,
 				86E559341F7CF99D002757B1 /* ZHDNSIpService.m in Sources */,
+				8687B0501FC2C68300A4CAB0 /* ZHNetworkingManager.m in Sources */,
 				86E5593D1F7DE8CB002757B1 /* ZHNetworkConfig.m in Sources */,
 				869A1FE81F7266EE00697675 /* ZHBatchRequestManager.m in Sources */,
 				86E559371F7CF9F0002757B1 /* ZHDNSResolveItem.m in Sources */,
+				864B27561FBA88EC00A9A170 /* ZHTamperConfig.m in Sources */,
 				86E5592E1F7CF696002757B1 /* ZHDNSDes.m in Sources */,
 				86566E0B1F67D34A00C2D52B /* ZHRequestManager.m in Sources */,
 				86E5593A1F7DE4FC002757B1 /* ZHDNSHttpManager.m in Sources */,

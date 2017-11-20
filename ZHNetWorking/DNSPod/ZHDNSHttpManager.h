@@ -33,7 +33,18 @@
  @abstract   获取域名列表
  */
 - (void)getAllDomain;
+/*!
+ @method
+ @abstract   获取域名列表
+ */
+- (NSArray *)getAllDomainList;
 
+/*!
+ @method
+ @abstract   对传入的新增域名进行重发
+ @param      domainArr 新增域名数组
+ */
+- (void)addDomainAndRefresh:(NSArray *)domainArr;
 /*!
  @method
  @abstract   添加域名并且对所有的域名进行重发
