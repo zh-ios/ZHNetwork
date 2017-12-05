@@ -13,7 +13,12 @@
 + (instancetype)sharedManager;
 
 
-- (NSArray *)getAllDomainList;
+/*!
+ @method
+ @abstract   获取domainlist 列表
+ @discussion 不是去发送请求的获取ip地址的方法，在该类初始化的时候就发请求获取domain对应的ip 了 。
+ */
+//- (NSArray *)getAllDomainList;
 
 - (void)addDomainsAndRefresh:(NSArray *)domains;
 /*!

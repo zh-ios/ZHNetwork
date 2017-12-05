@@ -141,7 +141,7 @@
     __block BOOL hasDomain = NO;
     [domainArr enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         
-        if ([obj isKindOfClass:[NSString class]]) {
+        if (![obj isKindOfClass:[NSString class]]) {
             *stop = YES;
             return;
         }
@@ -254,7 +254,8 @@
         return @"";
     } else if ([ipAddr isKindOfClass:[NSString class]] && [ipAddr length] > 0) {
         NSString *originHost = [[NSURL URLWithString:requestUrlStr] host];
-        resultStr = [requestUrlStr stringByReplacingCharactersInRange:NSMakeRange(0, originHost.length) withString:ipAddr];
+        requestUrlStr =  [requestUrlStr stringByReplacingOccurrencesOfString:originHost withString:ipAddr];
+        return requestUrlStr;
     } else {
         return nil;
     }

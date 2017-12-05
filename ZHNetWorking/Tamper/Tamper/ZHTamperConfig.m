@@ -23,9 +23,10 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.enableHttpDns = YES;
-        self.enableProxy = YES;
-        self.enableTamperGuard = YES;
+        // 默认不使用这些优化措施
+        self.enableHttpDns = NO;
+        self.enableProxy = NO;
+        self.enableTamperGuard = NO;
     }
     return self;
 }
