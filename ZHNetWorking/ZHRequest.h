@@ -8,6 +8,13 @@
 
 #import "AFNetworking.h"
 #import "ZHRequestDelegate.h"
+
+typedef NS_ENUM(NSInteger, ZHRequest_HostType) {
+    ZHRequest_HostType_INIT = 0, // 初始请求域名
+    ZHRequest_HostType_DNSPOD,  // DNSPOD 域名请求
+    ZHRequest_HostType_PROXY // 反向代理域名
+};
+
 typedef NS_ENUM(NSInteger, ZHRequest_Type) {
     ZHRequest_Type_GET = 0,
     ZHRequest_Type_POST
@@ -79,6 +86,11 @@ typedef void (^DownloadProcessBlock)(NSProgress *process);
  @abstract 默认get
  */
 @property(nonatomic, assign) ZHRequest_Type requestType;
+/*!
+ @property
+ @abstract 请求的类型：是走的初始请求，反向代理，还是走的dnspod
+ */
+@property(nonatomic, assign) ZHRequest_HostType requestHostType;
 /*!
  @property
  @abstract 默认 http

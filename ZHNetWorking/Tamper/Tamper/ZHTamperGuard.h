@@ -23,4 +23,8 @@ typedef NS_ENUM(NSInteger, TamperGuardAction) {
 
 @interface ZHTamperGuard : NSObject
 
+@property(nonatomic, assign) BOOL enableProxy;
+
++ (instancetype)sharedInstance;
+
 @end
