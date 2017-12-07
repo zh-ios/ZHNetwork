@@ -43,7 +43,7 @@
     
     ZHRequest *request = [[ZHRequest alloc] init];
     NSString *urlStr = [NSString stringWithFormat:@"http://119.29.29.29/d?ttl=1&dn=%@",self.item.domain];
-    request.urlString = urlStr;
+    request.requestUrlStr = urlStr;
     request.responseSerilalizerType = ZHRequest_ResponseSerilalizerType_HTTP;
     request.delegate = self;
     [[ZHRequestManager sharedManager] addRequest:request];

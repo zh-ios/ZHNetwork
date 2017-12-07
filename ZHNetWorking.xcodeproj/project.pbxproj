@@ -21,6 +21,7 @@
 		866A93011FD62F1D005B39EB /* ZHTamperGuard.m in Sources */ = {isa = PBXBuildFile; fileRef = 866A93001FD62F1D005B39EB /* ZHTamperGuard.m */; };
 		866A93041FD63718005B39EB /* ZHBaseService.m in Sources */ = {isa = PBXBuildFile; fileRef = 866A93031FD63718005B39EB /* ZHBaseService.m */; };
 		866A93091FD6AD85005B39EB /* ZHProxyManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 866A93081FD6AD85005B39EB /* ZHProxyManager.m */; };
+		866A93121FD92870005B39EB /* MD5Tools.m in Sources */ = {isa = PBXBuildFile; fileRef = 866A93101FD92870005B39EB /* MD5Tools.m */; };
 		8687B0501FC2C68300A4CAB0 /* ZHNetworkingManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8687B04F1FC2C68300A4CAB0 /* ZHNetworkingManager.m */; };
 		869A1FE51F72490F00697675 /* ZHBatchRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 869A1FE41F72490F00697675 /* ZHBatchRequest.m */; };
 		869A1FE81F7266EE00697675 /* ZHBatchRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 869A1FE71F7266EE00697675 /* ZHBatchRequestManager.m */; };
@@ -62,6 +63,8 @@
 		866A93071FD6AD85005B39EB /* ZHProxyManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHProxyManager.h; sourceTree = "<group>"; };
 		866A93081FD6AD85005B39EB /* ZHProxyManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZHProxyManager.m; sourceTree = "<group>"; };
 		866A930E1FD7EA3C005B39EB /* ZHNetworkConst.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHNetworkConst.h; sourceTree = "<group>"; };
+		866A93101FD92870005B39EB /* MD5Tools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MD5Tools.m; sourceTree = "<group>"; };
+		866A93111FD92870005B39EB /* MD5Tools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MD5Tools.h; sourceTree = "<group>"; };
 		8687B04E1FC2C68300A4CAB0 /* ZHNetworkingManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHNetworkingManager.h; sourceTree = "<group>"; };
 		8687B04F1FC2C68300A4CAB0 /* ZHNetworkingManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZHNetworkingManager.m; sourceTree = "<group>"; };
 		869A1FE31F72490F00697675 /* ZHBatchRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHBatchRequest.h; sourceTree = "<group>"; };
@@ -125,6 +128,7 @@
 		86458D4B1F31D487006F7FF3 /* ZHNetWorking */ = {
 			isa = PBXGroup;
 			children = (
+				866A930F1FD9285A005B39EB /* Tools */,
 				866A93061FD6AD66005B39EB /* Proxy */,
 				864B27531FBA88B400A9A170 /* Tamper */,
 				86E5592B1F7CF663002757B1 /* DNSPod */,
@@ -187,6 +191,15 @@
 				866A93081FD6AD85005B39EB /* ZHProxyManager.m */,
 			);
 			path = Proxy;
+			sourceTree = "<group>";
+		};
+		866A930F1FD9285A005B39EB /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				866A93111FD92870005B39EB /* MD5Tools.h */,
+				866A93101FD92870005B39EB /* MD5Tools.m */,
+			);
+			path = Tools;
 			sourceTree = "<group>";
 		};
 		86E5592B1F7CF663002757B1 /* DNSPod */ = {
@@ -352,6 +365,7 @@
 			files = (
 				866A93041FD63718005B39EB /* ZHBaseService.m in Sources */,
 				86566E081F67C89800C2D52B /* ZHRequest.m in Sources */,
+				866A93121FD92870005B39EB /* MD5Tools.m in Sources */,
 				866A93091FD6AD85005B39EB /* ZHProxyManager.m in Sources */,
 				869A1FEB1F739B0300697675 /* ZHChainRequest.m in Sources */,
 				869A1FEE1F739B1400697675 /* ZHChainRequestManager.m in Sources */,

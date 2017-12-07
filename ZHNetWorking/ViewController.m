@@ -42,7 +42,7 @@
         NSString *str = [netmanager getIpUrlStrWithReallyUrlStr:localpushurl requestUrlStr:localpushurl];
         NSLog(@"++++++++++++++++++++>%@",str);
         ZHRequest *req = [[ZHRequest alloc] init];
-        req.urlString = localpushurl;
+        req.requestUrlStr = localpushurl;
         [req start];
     });
     
@@ -50,7 +50,7 @@
         NSString *str = [netmanager getIpUrlStrWithReallyUrlStr:localpushurl requestUrlStr:localpushurl];
         NSLog(@"++++++++++++++++++++>%@",str);
         ZHRequest *req = [[ZHRequest alloc] init];
-        req.urlString = localpushurl;
+        req.requestUrlStr = localpushurl;
         [req start];
     });
 
@@ -58,7 +58,7 @@
         NSString *str = [netmanager getIpUrlStrWithReallyUrlStr:localpushurl requestUrlStr:localpushurl];
         NSLog(@"++++++++++++++++++++>%@",str);
         ZHRequest *req = [[ZHRequest alloc] init];
-        req.urlString = localpushurl;
+        req.requestUrlStr = localpushurl;
         [req start];
     });
     
@@ -66,7 +66,7 @@
         NSString *str = [netmanager getIpUrlStrWithReallyUrlStr:localpushurl requestUrlStr:localpushurl];
         NSLog(@"++++++++++++++++++++>%@",str);
         ZHRequest *req = [[ZHRequest alloc] init];
-        req.urlString = localpushurl;
+        req.requestUrlStr = localpushurl;
         [req start];
     });
     
@@ -74,7 +74,7 @@
         NSString *str = [netmanager getIpUrlStrWithReallyUrlStr:localpushurl requestUrlStr:localpushurl];
         NSLog(@"++++++++++++++++++++>%@",str);
         ZHRequest *req = [[ZHRequest alloc] init];
-        req.urlString = localpushurl;
+        req.requestUrlStr = localpushurl;
         [req start];
     });
 
@@ -84,7 +84,7 @@
             NSLog(@"++++++++++++++++++++>%@",str);
             ZHRequest *req = [[ZHRequest alloc] init];
             req.delegate = self;
-            req.urlString = localpushurl;
+            req.requestUrlStr = localpushurl;
             [req start];
             
             
@@ -111,7 +111,7 @@
 //        ZHRequest *req = [[ZHRequest alloc] init];
 //        req.timeoutInterval = 20;
 //        req.requestType = ZHRequest_Type_POST;
-//        req.urlString = @"https://activity.app.autohome.com.cn/ugapi/api/guide/getNoticeRule";
+//        req.requestUrlStr = @"https://activity.app.autohome.com.cn/ugapi/api/guide/getNoticeRule";
 //        req.priority = ZHRequest_Priority_Low;
 //        if (i % 5 ==0) {
 //            req.priority = ZHRequest_Priority_High;
@@ -150,7 +150,7 @@
 - (void)batchRequest {
     NSString *downloadStr = @"http://120.25.226.186:32812/resources/videos/minion_01.mp4";
     ZHRequest *postRe = [[ZHRequest alloc] init];
-    postRe.urlString = downloadStr;
+    postRe.requestUrlStr = downloadStr;
     postRe.delegate = self;
 
     NSString *documentPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
@@ -158,7 +158,7 @@
     postRe.requestType = ZHRequest_Type_GET;
     
     ZHRequest *postRe1 = [[ZHRequest alloc] init];
-    postRe1.urlString = downloadStr;
+    postRe1.requestUrlStr = downloadStr;
     postRe1.delegate = self;
     
     postRe1.downloadPath = documentPath;

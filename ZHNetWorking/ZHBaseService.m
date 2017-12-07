@@ -16,11 +16,7 @@
 
 @property(nonatomic, assign) NSUInteger retryCount;
 @property(nonatomic, assign) NSUInteger expireRetryCount;
-/*!
- @property
- @abstract 是否已经使用了反向代理
- */
-@property(nonatomic, assign) BOOL hasUseProxy;
+
 @end
 
 @implementation ZHBaseService
@@ -87,14 +83,13 @@
     
     ZHRequest *request = [[ZHRequest alloc] init];
     request.delegate = self;
-    request.urlString = [url absoluteString];
+    request.requestUrlStr = [url absoluteString];
     request.requestHeaders = self.requestHeaderDic;
     request.requestHostType = ZHRequest_HostType_INIT;
     request.requestType = ZHRequest_Type_GET;
     request.timeoutInterval = self.timeoutSeconds;
     request.priority = self.priority;
-    self.hasUseProxy = NO;
-    
+   
     _request = request;
     [_request start];
     

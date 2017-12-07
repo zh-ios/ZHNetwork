@@ -86,7 +86,7 @@
     
     ZHRequest *domainRequest = [[ZHRequest alloc] init];
     domainRequest.requestType = ZHRequest_Type_GET;
-    domainRequest.urlString = @"https://comm.app.autohome.com.cn/comm_v1.0.0/ashx/getappdomainname.json";
+    domainRequest.requestUrlStr = @"https://comm.app.autohome.com.cn/comm_v1.0.0/ashx/getappdomainname.json";
     domainRequest.responseSerilalizerType = ZHRequest_RequestSerializerType_JSON;
     domainRequest.delegate = self;
     [[ZHRequestManager sharedManager] addRequest:domainRequest];

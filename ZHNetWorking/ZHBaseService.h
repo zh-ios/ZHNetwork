@@ -101,6 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, strong, readonly) ZHRequest *request;
 
+
 ///////////////////////缓存相关 暂未实现/////////////////////////////////////////
 // TODO 读取缓存策略 ，写入缓存策略
 /*!

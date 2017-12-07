@@ -15,6 +15,12 @@ typedef NS_ENUM(NSInteger, ZHRequest_HostType) {
     ZHRequest_HostType_PROXY // 反向代理域名
 };
 
+typedef NS_ENUM(NSInteger, ZHRequest_Retry_Type) {
+    ZHRequest_Retry_Type_INIT = 0, // 初始请求
+    ZHRequest_Retry_Type_Retry,   // 重试请求
+    ZHRequest_Retry_Type_Other   // 其他请求 异步重试的请求
+};
+
 typedef NS_ENUM(NSInteger, ZHRequest_Type) {
     ZHRequest_Type_GET = 0,
     ZHRequest_Type_POST
@@ -70,10 +76,16 @@ typedef void (^DownloadProcessBlock)(NSProgress *process);
  */
 @property(nonatomic, copy) NSString *uniqueIdentifier;
 
-
-@property(nonatomic, copy) NSString *urlString;
+/*!
+ @property
+ @abstract 实际发出请求的时候urlStr
+ */
+@property(nonatomic, copy) NSString *requestUrlStr;
 @property(nonatomic, assign) NSInteger timeoutInterval;
 @property(nonatomic, strong) NSDictionary *params;
+
+
+
 
 /*!
  @property
@@ -91,6 +103,11 @@ typedef void (^DownloadProcessBlock)(NSProgress *process);
  @abstract 请求的类型：是走的初始请求，反向代理，还是走的dnspod
  */
 @property(nonatomic, assign) ZHRequest_HostType requestHostType;
+/*!
+ @property
+ @abstract 重试次数类型，是第一次还是重试 
+ */
+@property(nonatomic, assign) ZHRequest_Retry_Type requestRetryType;
 /*!
  @property
  @abstract 默认 http
@@ -128,6 +145,8 @@ typedef void (^DownloadProcessBlock)(NSProgress *process);
 @property(nonatomic, copy) FailureBlock failureBlock;
 
 @property(nonatomic, weak) id<ZHRequestDelegate> delegate;
+
+@property(nonatomic, assign) BOOL useProxy;
 
 - (void)cancel;
 

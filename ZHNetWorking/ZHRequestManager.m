@@ -144,7 +144,7 @@
 
 - (NSURLSessionTask *)sessionTask4Request:(ZHRequest *)request {
     AFHTTPRequestSerializer *requestSerializer = [self requestSerializer4Request:request];
-    NSString *urlStr = request.urlString;
+    NSString *urlStr = request.requestUrlStr;
     NSDictionary  *params = request.params;
     NSURLSessionTask *task = nil;
     NSError *error = nil;
@@ -153,7 +153,7 @@
     switch (request.requestType) {
         case ZHRequest_Type_GET:
             if (request.downloadPath) {
-                return  [self downloadTaskWithRequest:request downloadPath:request.downloadPath requestSerializer:requestSerializer url:request.urlString params:params downloadProcess:request.downloadProcess];
+                return  [self downloadTaskWithRequest:request downloadPath:request.downloadPath requestSerializer:requestSerializer url:request.requestUrlStr params:params downloadProcess:request.downloadProcess];
             } else {
                 method = @"GET";
             }
