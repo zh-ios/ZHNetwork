@@ -9,6 +9,7 @@
 #ifndef ZHNetworkConst_h
 #define ZHNetworkConst_h
 
+#define DATA_EXPIRED_RETRY_COUNT (1)
 
 #define dispatch_main_queue_excute(block)\
         if ([NSThread isMainThread]) {\

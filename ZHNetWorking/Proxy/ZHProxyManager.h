@@ -10,7 +10,7 @@
 
 @interface ZHProxyManager : NSObject
 
-@property(nonatomic, assign) BOOL userProxy;
+@property(nonatomic, assign) BOOL useProxy;
 
 + (instancetype)sharedManager;
 

@@ -11,6 +11,10 @@
 #import "ZHDNSHttpManager.h"
 #import "ZHProxyManager.h"
 #import "MD5Tools.h"
+#import "ZHNetworkConst.h"
+
+#define k_RETRY_RANDOM_PARAM   @"refreshparam"
+#define k_RETRY_REQID          @"reqid"
 
 @implementation ZHTamperGuard
 
@@ -93,12 +97,161 @@
     
     if (service.enableMD5) {
         NSString *errorMsg = nil;
-        [self md5Judge:service request:request errorMsg:&errorMsg delegate:delegate];
+        BOOL ret = [self md5Judge:service request:request errorMsg:&errorMsg delegate:delegate];
+        if (ret) {
+            // MD5 校验通过
+        } else {
+            [ZHProxyManager sharedManager].useProxy = YES;
+            // errorMsg 上报错误信息
+            
+            if (request.requestHostType == ZHRequest_HostType_DNSPOD && request.requestRetryType != ZHRequest_Retry_Type_Other) {
+                [[ZHDNSHttpManager sharedManager] setIpInvalidate:service.reallyUrlStr requestUrlStr:request.requestUrlStr];
+            }
+            
+            if (request.useProxy) {
+                // 已经使用反向代理则不再进行后续操作
+//                [[ZHProxyManager sharedManager] setIpAddressInvalidate]
+                [self completeWithResult:TamperGuardAction_USE_PROXY withService:service dropResponse:NO delegate:delegate];
+                return;
+            }
+            
+            /// 请求失败，使用反向代理重发请求
+            BOOL resend = NO;
+            if (service.enableRetry && request.requestType == ZHRequest_Type_GET) {
+                resend = [self reRequestThroughProxy:service request:request];
+            }
+            //当resend为YES的时候，说明需要重发，故drop参数同样也为YES
+            [self completeWithResult:TamperGuardAction_MD5_CHECK withService:service dropResponse:request delegate:delegate];
+            return;
+        }
     }
     
+    ////////////////////////////////缓存过期检测////////'
+    NSString *expiredInfo = nil;
+    if ([self isExpiredData:service req:request expiredInfo:&expiredInfo delegate:delegate]) {
+        if ([expiredInfo length] > 0) {
+            // 出现数据过期的情况 进行处理：如果日志上报等
+        }
+        
+        if (request.requestHostType == ZHRequest_HostType_DNSPOD && request.requestRetryType != ZHRequest_Retry_Type_Other) {
+            [[ZHDNSHttpManager sharedManager] setIpInvalidate:service.reallyUrlStr requestUrlStr:request.requestUrlStr];
+        }
+        if (request.useProxy) {
+            // 如果已经使用了反向代理
+//            [ZHProxyManager sharedManager] setIpAddressInvadate
+            [self completeWithResult:TamperGuardAction_USE_PROXY withService:service dropResponse:NO delegate:delegate];
+            return;
+        }
+        
+        // 尝试使用添加随机串的方式重发
+        BOOL resend = NO;
+        if (service.enableRetry && service.exipredRertyTimes <= DATA_EXPIRED_RETRY_COUNT && request.requestType == ZHRequest_Type_GET) {
+            resend = [self reRequestThroughRandomParam:service request:request];
+        }
+        [self completeWithResult:TamperGuardAction_EXPIRED_CHECK withService:service dropResponse:resend delegate:delegate];
+        return;
+    }
+    
+    //////////////////// JSON 校验/////////////////////////////
+    if (service.enableJSONPrase) {
+        BOOL success = NO;
+        @try {
+            NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:request.responseData options:NSJSONReadingAllowFragments error:nil];
+            success = [NSJSONSerialization isValidJSONObject:dic];
+        } @catch (NSException *e) {
+            
+        }
+        
+        if (!success) {
+            // 上报日志
+            
+            if (request.requestHostType == ZHRequest_HostType_DNSPOD && request.requestRetryType != ZHRequest_Retry_Type_Other) {
+                [[ZHDNSHttpManager sharedManager] setIpInvalidate:service.reallyUrlStr requestUrlStr:request.requestUrlStr];
+            }
+            if (request.useProxy) {
+//                [ZHProxyManager sharedManager] setIpAddre
+                [self completeWithResult:TamperGuardAction_JSON_CHECK withService:service dropResponse:NO delegate:delegate];
+                return;
+            }
+        }
+        [self completeWithResult:TamperGuardAction_JSON_CHECK withService:service dropResponse:NO delegate:delegate];
+        return;
+    }
+    
+    // 上报日志 NONE ERROR
+    [self completeWithResult:TamperGuardAction_NONE withService:service dropResponse:NO delegate:delegate];
 }
 
+- (BOOL)reRequestThroughRandomParam:(ZHBaseService *)service request:(ZHRequest *)req {
+    if (!service.enableRetry || req.requestType != ZHRequest_Type_GET || req.useProxy)  return NO;
+    
+    NSRange range = [req.requestUrlStr rangeOfString:k_RETRY_RANDOM_PARAM];
+    if (range.location != NSNotFound) {
+        // 已经重试过了
+        return NO;
+    } else {
+        NSMutableDictionary *mDic = [NSMutableDictionary dictionaryWithDictionary:req.allHeaderFields];
+        [mDic setObject:@"reqid" forKey:k_RETRY_REQID];
+        req.requestHeaders = [mDic copy];
+        service.requestHeaderDic = [mDic copy];
+        
+        [self performSelector:@selector(dataOutofdateAddRandomNumForReRequest:) withObject:[self addRandomParam:req.requestUrlStr]];
+        return YES;
+    }
+}
 
+/*!
+ @method
+ @abstract   向url中添加随机查询参数
+ */
+- (NSString *)addRandomParam:(NSString *)urlStr {
+    NSRange range = [urlStr rangeOfString:k_RETRY_RANDOM_PARAM];
+    //已经有随机参数不再重复添加
+    if (range.location != NSNotFound) {
+        return urlStr;
+    }
+    NSTimeInterval interval = [[NSDate date] timeIntervalSince1970];
+    NSString *randomStr = [NSString stringWithFormat:@"%.0f",interval];
+    NSString *pars = [[NSURL URLWithString:urlStr] query];
+    if (nil == pars) {
+       return [NSString stringWithFormat:@"%@?%@=%@",urlStr,k_RETRY_RANDOM_PARAM,randomStr];
+    }else{
+         return [NSString stringWithFormat:@"%@&%@=%@",urlStr,k_RETRY_RANDOM_PARAM,randomStr];
+    }
+}
+
+/*!
+ @method
+ @abstract   通过反向代理的方式进行重试
+ @return    是否已经重试
+ */
+- (BOOL)reRequestThroughProxy:(ZHBaseService *)service request:(ZHRequest *)req {
+    if (!service.enableRetry || req.requestType != ZHRequest_Type_GET || req.useProxy)  return NO;
+
+//    NSString *newProxyIpAddr = [ZHProxyManager sharedManager]  获取下一个可用的ip地址
+    NSString *newProxyIpAddr = @"";
+    NSString *avaiableProxyUrlStr = @"";
+    if (!(avaiableProxyUrlStr && [avaiableProxyUrlStr isKindOfClass:[NSString class]] && [avaiableProxyUrlStr length] > 0)) return NO;
+    NSURL *avaliableProxyUrl = @""; // 通过反向代理mgr 获取可用url
+    // 判断当前的方向代理地址和传入进来的url 是否一样
+    if (![[avaliableProxyUrl absoluteString] isEqualToString:service.requestUrlStr]) {
+        NSMutableDictionary *mDic = [NSMutableDictionary dictionaryWithDictionary:req.allHeaderFields];
+        // 对于反向大力请求 header中 都添加 reqid 字段 。
+        [mDic setObject:@"reqid" forKey:@"reqid"];
+        //发送反向代理，设置Host头
+        if ([[NSURL URLWithString:service.requestUrlStr] host]) {
+            [mDic setObject:[[NSURL URLWithString:service.requestUrlStr] host] forKey:@"Host"];
+        }
+        req.requestHeaders = [mDic copy];
+        req.useProxy = YES;
+        
+        service.requestHeaderDic = [mDic copy];
+        [service performSelector:@selector(getDataByNoReallyURL:) withObject:[NSURL URLWithString:[avaliableProxyUrl absoluteString]]];
+        return YES;
+    } else {
+        return NO;
+    }
+}
 
 
 
@@ -141,6 +294,59 @@
     }
 }
 
+- (BOOL)isExpiredData:(ZHBaseService *)service req:(ZHRequest *)req
+          expiredInfo:(NSString **)info delegate:(id<ZHTamperGuardDelegate>)delegate {
+    [self onChangeMonitorAction:TamperGuardAction_EXPIRED_CHECK service:service delegate:delegate];
+    *info = nil;
+    NSTimeInterval lastupdate = 0;
+    for (NSString *key in req.allHeaderFields) {
+        if ([key isEqualToString:@"lastupdate"]) {
+            lastupdate = [[req.allHeaderFields objectForKey:key] doubleValue];
+            break;
+        }
+    }
+    // header中有这个字段才进行数据缓存过期校验
+    if (lastupdate > 0) {
+        NSTimeInterval nowTime = [[NSDate date] timeIntervalSince1970];
+        BOOL ret = fabs(lastupdate-nowTime) > 60*60*12;
+        // 间隔超过12个小时
+        if (ret) {
+            if ([self isRetryRequestForExpiredData:req]) {
+                // 数据过期已经重试
+                *info = @"EXPIRED_DATA_HAD_RETRY";
+            } else {
+                // 数据过期未重试
+                *info = @"EXPIRED_DATA";
+            }
+            return YES;
+        } else {
+            return NO;
+        }
+    } else {
+        /** 取lastupdate<=0，android校验这种情况是失败。应该return YES*/
+        if ([self isRetryRequestForExpiredData:req]) {
+            *info = @"EXPIRED_DATA_HAD_RETRY";
+        }else {
+            
+            *info = @"EXPIRED_DATA";
+        }
+        return YES;
+    }
+}
+
+/*!
+ @method
+ @abstract   是否是因为数据过期校验重试的请求
+ */
+- (BOOL)isRetryRequestForExpiredData:(ZHRequest *)req {
+    NSRange range = [req.requestUrlStr rangeOfString:@"refreshParam"];
+    if (range.location != NSNotFound) {
+        return NO;
+    } else {
+        return YES;
+    }
+}
+
 - (BOOL)isFromOurServier:(ZHBaseService *)service req:(ZHRequest *)req {
     //通过响应头中包含的“AppServer”字段来标示响应是不是来自我们的服务器
     if (nil == req.allHeaderFields[@"AppServer"]) {
@@ -174,5 +380,24 @@
     if ([aDelegate respondsToSelector:@selector(tamperGuardResult:service:dropResponse:)]) {
     }
 }
+
+
+
+#pragma mark - reqid
+//+ (NSString *)reqid {
+//
+//    long long time = (long long)((double)[[NSDate date] timeIntervalSince1970] * 1000);
+//    /** reqId = deviceid+“/”+timestamp+"/"+100～999随机数 时间戳精确到毫秒 */
+//    int randomNum = arc4random() % 900 + 100;
+//    NSString *openUID = @"";
+//    if ([AHTamperConfig sharedInstance].delegate && [[AHTamperConfig sharedInstance].delegate respondsToSelector:@selector(openUID)]) {
+//        openUID = [[AHTamperConfig sharedInstance].delegate openUID];
+//    }
+//    NSString *result = [NSString stringWithFormat:@"%@/%lld/%d",openUID,time,randomNum];
+//    if (result) {
+//        return result;
+//    }
+//    return @"";
+//}
 
 @end

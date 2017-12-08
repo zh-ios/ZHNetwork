@@ -64,12 +64,18 @@ NS_ASSUME_NONNULL_BEGIN
  @abstract 是否使用MD5校验
  */
 @property(nonatomic, assign) BOOL enableMD5;
+@property(nonatomic, assign) BOOL enableJSONPrase;
 
 /*!
  @property
  @abstract 超时重试次数 ，只针对get请求 ，post不重试
  */
 @property(nonatomic, assign) NSUInteger timeoutRetryTimes;
+/*!
+ @property
+ @abstract 数据过期重试次数
+ */
+@property(nonatomic, assign) NSUInteger exipredRertyTimes;
 /*!
  @property
  @abstract 超时时间
