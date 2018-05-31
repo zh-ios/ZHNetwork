@@ -40,8 +40,9 @@
             // 有一个请求失败了，则取消其他的请求
             request.failureBlock = ^(NSError *error) {
                 [self cancelBatchRequest:batchRequest];
-                if ([batchRequest respondsToSelector:@selector(batchRequestFailed:)]) {
+                if ([batchRequest.delegate respondsToSelector:@selector(batchRequestFailed:)]) {
                     [batchRequest.delegate batchRequestFailed:batchRequest];
+                    return;
                 }
             };
         });

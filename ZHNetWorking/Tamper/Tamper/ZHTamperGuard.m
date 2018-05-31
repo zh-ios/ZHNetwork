@@ -18,6 +18,19 @@
 
 @implementation ZHTamperGuard
 
+static ZHTamperGuard *_tamper = nil;
+
++ (instancetype)sharedInstance {
+    if (_tamper) {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            if (!_tamper) {
+                _tamper = [[self alloc] init];
+            }
+        });
+    }
+    return _tamper;
+}
 
 - (void)checkService:(ZHBaseService *)service request:(ZHRequest *)request delegate:(id<ZHTamperGuardDelegate>)delegate {
     /** 只对GET 请求对劫持校验   */

@@ -18,7 +18,7 @@
 #import "ZHTamperConfig.h"
 #define kUserToken          @"02b504cc5d6d4666be41e40f8946e1d6"
 
-@interface ViewController ()<ZHRequestDelegate>
+@interface ViewController ()<ZHRequestDelegate,ZHBatchRequestDelegate>
 
 @end
 
@@ -143,7 +143,8 @@
     
 // 下载url
 //    http://120.25.226.186:32812/resources/videos/minion_01.mp4
-    
+ 
+    [self batchRequest];
 }
 
 
@@ -168,6 +169,9 @@
     
     postRe1.delegate = self;
     postRe.delegate = self;
+    
+    batchRE.delegate = self;
+    
     postRe.downloadProcess = ^(NSProgress *process) {
         NSLog(@"--------->%.2f",process.completedUnitCount/(process.totalUnitCount*1.0));
     };
@@ -193,6 +197,17 @@
     
 }
 - (void)requestWillStart {
+    
+}
+
+
+- (void)batchRequestFinished:(ZHBatchRequest *)batchRequest {
+    
+}
+- (void)batchRequestFailed:(ZHBatchRequest *)batchRequest {
+    
+}
+- (void)batchRequestWillStart:(ZHBatchRequest *)batchRequest {
     
 }
 
